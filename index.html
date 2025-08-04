@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>🃏 השיטהאד של יצחקי 🃏</title>
+    <style>
+        /* Reset בסיסי */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            background: linear-gradient(135deg, #2d5a27, #4a7c59);
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+            padding: clamp(8px, 3vw, 20px);
+        }
+        .game-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* כותרת ראשית */
+        .game-title {
+            text-align: center;
+            font-size: clamp(1.5rem, 6vw, 2.8rem);
+            margin-bottom: clamp(12px, 4vw, 24px);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            padding: 0 10px;
+        }
+
+        /* סטטוס המשחק */
+        .game-info {
+            text-align: center;
+        }
+        .status {
+            display: inline-block;
+            background: rgba(0,0,0,0.6);
+            color: #ffd700;
+            padding: clamp(8px,2vw,12px) clamp(12px,4vw,16px);
+            border-radius: 8px;
+            border: 2px solid rgba(255,215,0,0.3);
+            font-size: clamp(14px,3vw,18px);
+            font-weight: bold;
+            margin-bottom: clamp(12px,4vw,16px);
+            word-wrap: break-word;
+        }
+
+        /* מבנה המשחק */
+        .game-area {
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            gap: clamp(12px,3vw,20px);
+            min-height: 60vh;
+        }
+        .opponent-area, .player-area {
+            background: rgba(0,0,0,0.2);
+            padding: clamp(12px,3vw,20px);
+            border-radius: 12px;
+        }
+        .opponent-area h3, .player-area h3 {
+            font-size: clamp(1rem,4vw,1.4rem);
+            text-align: center;
+            margin-bottom: clamp(8px,2vw,12px);
+        }
+        .table-cards {
+            display: flex;
+            gap: clamp(6px,2vw,10px);
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: clamp(8px,2vw,12px) 0;
+        }
+        .table-card-set > div:first-child {
+            font-size: clamp(0.8rem,3vw,1rem);
+            margin-bottom: clamp(4px,1vw,6px);
+        }
+
+        /* אזור אמצעי */
+        .center-area {
+            background: rgba(0,0,0,0.3);
+            padding: clamp(16px,4vw,24px);
+            border-radius: 15px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .deck {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: clamp(12px,3vw,16px);
+        }
+        .deck > div:first-child {
+            font-size: clamp(0.9rem,3vw,1rem);
+            margin-bottom: clamp(4px,1vw,6px);
+        }
+        .pile {
+            border: 3px dashed rgba(255,255,255,0.5);
+            border-radius: 10px;
+            min-height: clamp(60px,15vw,100px);
+            width: 100%;
+            max-width: 160px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: clamp(12px,3vw,16px) 0;
+        }
+
+        /* כפתורים */
+        .buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: clamp(6px,2vw,10px);
+            justify-content: center;
+            width: 100%;
+        }
+        .btn {
+            flex: 1 1 auto;
+            min-width: clamp(80px,25vw,140px);
+            padding: clamp(10px,3vw,12px) clamp(16px,4vw,20px);
+            font-size: clamp(0.9rem,3vw,1.1rem);
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            touch-action: manipulation;
+            user-select: none;
+        }
+        .btn:active { transform: scale(0.95); }
+        .btn-primary { background: #0d6efd; color: #fff; }
+        .btn-secondary { background: #6c757d; color: #fff; }
+        .btn-danger { background: #dc3545; color: #fff; }
+
+        /* קלפים */
+        .cards-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: clamp(4px,1.5vw,8px);
+            justify-content: center;
+            margin: clamp(8px,2vw,12px) 0;
+            max-width: 100%;
+            padding: 0 5px;
+        }
+        .card {
+            width: clamp(60px,18vw,100px);
+            height: clamp(85px,25vw,140px);
+            background: #fff;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #333;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            touch-action: manipulation;
+        }
+        @media (hover:hover) { .card:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); } }
+        .card:active { transform: scale(0.97); }
+        .card.selected {
+            background: #fff3cd;
+            border-color: #ffc107;
+            transform: translateY(-5px);
+            box-shadow: 0 4px 12px rgba(255,193,7,0.5);
+        }
+        .card-back {
+            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+            cursor: default;
+        }
+
+        /* כללי המשחק */
+        .rules {
+            background: rgba(0,0,0,0.4);
+            padding: clamp(12px,3vw,16px);
+            border-radius: 10px;
+            margin-top: clamp(16px,4vw,24px);
+        }
+        .rules h3 {
+            color: #ffd700;
+            font-size: clamp(1rem,3vw,1.2rem);
+            margin-bottom: clamp(8px,2vw,12px);
+        }
+        .rules li {
+            font-size: clamp(0.9rem,3vw,1rem);
+            margin: clamp(6px,2vw,8px) 0;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1 class="game-title">🃏 השיטהאד של יצחקי 🃏</h1>
+        <div class="game-info">
+            <div class="status" id="gameStatus">
+                בחר 3 קלפים בחלק התחתון להחלפה ואז לחץ "התחל משחק"
+            </div>
+        </div>
+        <div class="game-area">
+            <!-- אזור היריב -->
+            <div class="opponent-area">
+                <h3>🧔 יהודה</h3>
+                <div class="table-cards">
+                    <div class="table-card-set">
+                        <div>קלפים פתוחים</div>
+                        <div class="cards-container" id="opponentOpen"></div>
+                    </div>
+                </div>
+                <div class="cards-container" id="opponentHand"></div>
+                <div class="table-cards">
+                    <div class="table-card-set">
+                        <div>קלפים סגורים</div>
+                        <div class="cards-container" id="opponentClosed"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- אזור אמצעי -->
+            <div class="center-area">
+                <div class="deck">
+                    <div>חפיסה (<span id="deckCount">0</span>)</div>
+                    <div class="card card-back" id="deck"></div>
+                </div>
+                <div class="pile" id="pile"><div>ערימת השלכה</div></div>
+                <div class="buttons">
+                    <button class="btn btn-primary" id="playBtn" onclick="playSelectedCards()">שחק קלפים</button>
+                    <button class="btn btn-secondary" id="takeBtn" onclick="takePile()">קח ערימה</button>
+                    <button class="btn btn-danger" id="startBtn" onclick="startGame()">התחל משחק</button>
+                </div>
+            </div>
+            <!-- אזור השחקן -->
+            <div class="player-area">
+                <h3>👤 את/ה</h3>
+                <div class="table-cards">
+                    <div class="table-card-set">
+                        <div>קלפים סגורים</div>
+                        <div class="cards-container" id="playerClosed"></div>
+                    </div>
+                </div>
+                <div class="cards-container" id="playerHand"></div>
+                <div class="table-cards">
+                    <div class="table-card-set">
+                        <div>קלפים פתוחים</div>
+                        <div class="cards-container" id="playerOpen"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="rules">
+            <h3>חוקי המשחק וסדר הקלפים:</h3>
+            <ul>
+                <li>קלפי יד → קלפים פתוחים → קלפים סגורים</li>
+                <li>2 – מאפס את הערימה</li>
+                <li>7 – הבא חייב להיות נמוך או שווה</li>
+                <li>8 – דילוג תור</li>
+                <li>10 – שורף את הערימה</li>
+                <li>4 קלפים זהים ברצף – שורפים</li>
+                <li>מי שמסיים ראשון – מנצח</li>
+            </ul>
+        </div>
+    </div>
