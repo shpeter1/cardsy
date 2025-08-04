@@ -56,145 +56,105 @@
       constructor() {
         this.suits=['♠','♥','♦','♣']; this.values=['3','4','5','6','7','8','9','10','J','Q','K','A','2'];
         this.deck=[]; this.pile=[]; this.selected=[];
-        this.player={closed:[],open:[],hand:[]};
-        this.opp={closed:[],open:[],hand:[]};
+        this.player={closed:[],open:[],hand:[]}; this.opp={closed:[],open:[],hand:[]};
         this.phase=0; this.turn='player';
-        this.elements = {
-          status: document.getElementById('status'),
-          deckCount: document.getElementById('deckCount'),
-          pile: document.getElementById('pile'),
-          zones: {
-            plClosed:document.getElementById('plClosed'),
-            plOpen:document.getElementById('plOpen'),
-            plHand:document.getElementById('plHand'),
-            oppClosed:document.getElementById('oppClosed'),
-            oppOpen:document.getElementById('oppOpen'),
-            oppHand:document.getElementById('oppHand'),
-          },
-          buttons: {
-            start:document.getElementById('start'),
-            play:document.getElementById('play'),
-            take:document.getElementById('take'),
-          }
-        };
         this.init();
       }
       init() {
-        // build deck
-        this.deck=[]; for(let s of this.suits) for(let v of this.values) this.deck.push({s,v});
-        // shuffle
+        // Build deck and shuffle
+        for(let s of this.suits) for(let v of this.values) this.deck.push({s,v});
         for(let i=this.deck.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[this.deck[i],this.deck[j]]=[this.deck[j],this.deck[i]];}
-        this.elements.buttons.start.addEventListener('click',()=>this.startGame());
-        this.elements.buttons.play.addEventListener('click',()=>this.playCards());
-        this.elements.buttons.take.addEventListener('click',()=>this.takePile());
+        // Attach buttons
+        document.getElementById('start').onclick=()=>this.startGame();
+        document.getElementById('play').onclick=()=>this.playCards();
+        document.getElementById('take').onclick=()=>this.takePile();
         this.update();
       }
       startGame() {
-        // deal
+        // Deal 3 closed, 3 open, 3 hand each
         for(let i=0;i<3;i++){ this.player.closed.push(this.deck.pop()); this.opp.closed.push(this.deck.pop()); }
         for(let i=0;i<3;i++){ this.player.open.push(this.deck.pop()); this.opp.open.push(this.deck.pop()); }
         for(let i=0;i<3;i++){ this.player.hand.push(this.deck.pop()); this.opp.hand.push(this.deck.pop()); }
         this.phase=1; this.update();
       }
-      createCardElem(c,hide=false) {
-        let d=document.createElement('div');
-        d.className='card'+(hide?' card-back':'');
-        if(!hide) d.textContent=c.v+c.s;
-        return d;
-      }
-      renderZone(zoneName,arr,hide=false,clickable=false) {
-        let cont=this.elements.zones[zoneName];
-        cont.innerHTML='';
-        arr.forEach((c,i)=>{
-          let d=this.createCardElem(c,hide);
-          if(clickable){
-            d.addEventListener('click',()=>this.selectCard(c,d));
-          }
+      renderZone(id,arr,hide,clickable) {
+        const cont=document.getElementById(id); cont.innerHTML='';
+        arr.forEach(c=>{
+          const d=document.createElement('div');
+          d.className='card'+(hide?' card-back':'');
+          if(!hide) d.textContent=c.v+c.s;
+          if(clickable) d.onclick=()=>this.selectCard(c,d);
           cont.appendChild(d);
         });
       }
       update() {
-        // status
-        this.elements.status.textContent = this.phase===0?'לחץ בתחל משחק':'הבור שלך';
-        // deck count
-        this.elements.deckCount.textContent=this.deck.length;
-        // render
+        document.getElementById('status').textContent=this.phase===0?'לחץ להתח משחק':'התורך';
+        document.getElementById('deckCount').textContent=this.deck.length;
         this.renderZone('plClosed',this.player.closed,true,false);
-        this.renderZone('plOpen',this.player.open,false,true);
+        this.renderZone('plOpen',this.player.open,false,false);
         this.renderZone('plHand',this.player.hand,false,true);
         this.renderZone('oppClosed',this.opp.closed,true,false);
         this.renderZone('oppOpen',this.opp.open,false,false);
         this.renderZone('oppHand',this.opp.hand,false,false);
-        // pile
-        let pc=this.pile.length?this.pile[this.pile.length-1]:null;
-        this.elements.pile.innerHTML='';
-        if(pc){this.elements.pile.appendChild(this.createCardElem(pc,false));}
-        // buttons
-        this.elements.buttons.play.disabled = this.selected.length===0;
-        this.elements.buttons.take.disabled = false;
+        this.renderZone('pile',this.pile,false,false);
+        document.getElementById('play').disabled=!this.selected.length;
+        document.getElementById('take').disabled=false;
       }
-      selectCard(card,elem){
-        if(this.phase!==1 || this.turn!=='player') return;
-        // toggle
-        let idx=this.selected.indexOf(card);
-        if(idx>-1){this.selected.splice(idx,1); elem.classList.remove('selected');}
+      selectCard(card,elem) {
+        if(this.phase!==1||this.turn!=='player')return;
+        const idx=this.selected.indexOf(card);
+        if(idx>-1){ this.selected.splice(idx,1); elem.classList.remove('selected'); }
         else{
-          // ensure same value
-          if(this.selected.length>0 && this.selected[0].v!==card.v){alert('בחר קלפים מאותו ערך'); return;}
+          if(this.selected.length&&this.selected[0].v!==card.v){ alert('בחר קלפים מאותו ערך'); return; }
           this.selected.push(card); elem.classList.add('selected');
         }
       }
-      playCards(){
-        // validate playable
+      val(c){return this.values.indexOf(c.v);}
+      playCards() {
+        // Validate
         if(this.pile.length){
-          let top=this.pile[this.pile.length-1];
+          const top=this.pile[this.pile.length-1];
           if(!this.selected.every(c=>{
-            if(c.v==='2'||c.v==='10'||top.v==='2') return true;
-            if(top.v==='7') return this.values.indexOf(c.v)<=this.values.indexOf('7');
-            return this.values.indexOf(c.v)>=this.values.indexOf(top.v);
-          })){alert('לא ניתן לשחק'); return;}
+            if(c.v==='2'||c.v==='10')return true;
+            if(top.v==='7')return this.val(c)<=this.val(top);
+            return this.val(c)>=this.val(top);
+          })){ alert('לא ניתן לשחק'); return; }
         }
-        // play
+        // Play
         this.pile.push(...this.selected);
-        // remove from hand/open
-        this.player.hand = this.player.hand.filter(c=>!this.selected.includes(c));
-        this.player.open = this.player.open.filter(c=>!this.selected.includes(c));
+        ['hand','open'].forEach(z=>{
+          this.player[z]=this.player[z].filter(c=>!this.selected.includes(c));
+        });
         this.selected=[];
-        // refill
-        while(this.player.hand.length<3 && this.deck.length) this.player.hand.push(this.deck.pop());
-        // switch turn
-        this.turn='opp'; this.update(); setTimeout(()=>this.opponentMove(),500);
+        while(this.player.hand.length<3&&this.deck.length) this.player.hand.push(this.deck.pop());
+        this.turn='opp'; this.selected=[]; this.update(); setTimeout(()=>this.oppPlay(),500);
       }
-      takePile(){
+      takePile() {
         this.player.hand.push(...this.pile); this.pile=[];
-        this.turn='opp'; this.update(); setTimeout(()=>this.opponentMove(),500);
+        this.turn='opp'; this.update(); setTimeout(()=>this.oppPlay(),500);
       }
-      opponentMove(){
-        // simple AI: play lowest
-        let avail= this.opp.hand.length?this.opp.hand:(this.opp.open.length?this.opp.open:this.opp.closed);
+      oppPlay() {
+        let avail=this.opp.hand.length?this.opp.hand:(this.opp.open.length?this.opp.open:this.opp.closed);
         let playable=avail.filter(c=>{
-          if(!this.pile.length) return true;
-          let top=this.pile[this.pile.length-1];
-          if(c.v==='2'||c.v==='10'||top.v==='2') return true;
-          if(top.v==='7') return this.values.indexOf(c.v)<=this.values.indexOf('7');
-          return this.values.indexOf(c.v)>=this.values.indexOf(top.v);
+          if(!this.pile.length)return true;
+          const top=this.pile[this.pile.length-1];
+          if(c.v==='2'||c.v==='10')return true;
+          if(top.v==='7')return this.val(c)<=this.val(top);
+          return this.val(c)>=this.val(top);
         });
         if(!playable.length){ this.opp.hand.push(...this.pile); this.pile=[]; }
         else{
-          let card=playable.reduce((a,b)=>this.values.indexOf(a.v)<this.values.indexOf(b.v)?a:b);
-          // remove
-          ['hand','open','closed'].forEach(zone=>{
-            let idx=this.opp[zone].indexOf(card);
-            if(idx>-1) this.opp[zone].splice(idx,1);
+          const card=playable.reduce((a,b)=>this.val(a)<this.val(b)?a:b);
+          ['hand','open','closed'].forEach(z=>{
+            const i=this.opp[z].indexOf(card); if(i>-1) this.opp[z].splice(i,1);
           });
           this.pile.push(card);
-          // refill AI
-          while(this.opp.hand.length<3 && this.deck.length) this.opp.hand.push(this.deck.pop());
+          while(this.opp.hand.length<3&&this.deck.length) this.opp.hand.push(this.deck.pop());
         }
         this.turn='player'; this.update();
       }
     }
-    window.addEventListener('load',()=>new Shithead());
+    window.onload=()=>new Shithead();
   </script>
 </body>
 </html>
