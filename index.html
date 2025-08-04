@@ -37,10 +37,10 @@
         <h1 class="game-title">🃏 השיטהאד של יצחקי 🃏</h1>
         <div class="game-info"><div class="status" id="gameStatus">בחר 3 קלפים לשולחן ואז לחץ "התחל משחק"</div></div>
         <div class="game-area">
-            <div class="opponent-area"><h3>🧔 קלוד</h3>
+            <div class="opponent-area"><h3>🧔 יהודה</h3>
+                <div class="table-cards"><div class="table-card-set"><div>סגורים</div><div class="cards-container" id="opponentClosed"></div></div></div>
                 <div class="table-cards"><div class="table-card-set"><div>פתוחים</div><div class="cards-container" id="opponentOpen"></div></div></div>
                 <div class="cards-container" id="opponentHand"></div>
-                <div class="table-cards"><div class="table-card-set"><div>סגורים</div><div class="cards-container" id="opponentClosed"></div></div></div>
             </div>
             <div class="center-area">
                 <div class="deck"><div>חפיסה (<span id="deckCount">0</span>)</div><div class="card card-back" id="deck"></div></div>
@@ -53,78 +53,115 @@
             </div>
             <div class="player-area"><h3>👤 את/ה</h3>
                 <div class="table-cards"><div class="table-card-set"><div>סגורים</div><div class="cards-container" id="playerClosed"></div></div></div>
-                <div class="cards-container" id="playerHand"></div>
                 <div class="table-cards"><div class="table-card-set"><div>פתוחים</div><div class="cards-container" id="playerOpen"></div></div></div>
+                <div class="cards-container" id="playerHand"></div>
             </div>
         </div>
     <div class="rules"><h3>חוקי המשחק:</h3><ul><li>2–איפוס</li><li>7–נמוך/שווה</li><li>8–דילוג</li><li>10–שורף</li><li>4 ברצף–שורף</li></ul></div>
     </div>
     <script>
         class ShitheadGame {
-            constructor() {
+            constructor(){
                 this.suits=['♠','♥','♦','♣']; this.values=['3','4','5','6','7','8','9','10','J','Q','K','A','2'];
-                this.deck=[]; this.pile=[]; this.selectedCards=[]; this.playerHand=[]; this.playerOpen=[]; this.playerClosed=[];
-                this.opponentHand=[]; this.opponentOpen=[]; this.opponentClosed=[]; this.currentPlayer='player'; this.gamePhase='setup';
-                this.initializeDeck(); this.deal(); this.render(); this.attachEvents();
+                this.deck=[]; this.pile=[]; this.selected=[]; 
+                this.player=[[],[],[]]; this.opponent=[[],[],[]];
+                this.current='player'; this.phase=0;
+                this.init(); this.attach(); this.render();
             }
-            initializeDeck(){this.deck=[];for(let s of this.suits)for(let v of this.values)this.deck.push({suit:s,value:v,isRed:(s==='♥'||s==='♦')}); this.shuffle();}
-            shuffle(){for(let i=this.deck.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[this.deck[i],this.deck[j]]=[this.deck[j],this.deck[i]]}}
-            deal(){for(let i=0;i<3;i++){this.playerClosed.push(this.deck.pop()); this.opponentClosed.push(this.deck.pop());}
-                for(let i=0;i<3;i++){this.playerOpen.push(this.deck.pop()); this.opponentOpen.push(this.deck.pop());}
-                for(let i=0;i<3;i++){this.playerHand.push(this.deck.pop()); this.opponentHand.push(this.deck.pop());}}
-            attachEvents(){
-                document.getElementById('startBtn').addEventListener('click',()=>{this.gamePhase='playing'; this.updateStatus();});
-                document.getElementById('playBtn').addEventListener('click',()=>this.playerPlay());
-                document.getElementById('takeBtn').addEventListener('click',()=>this.playerTake());
+            init(){ for(let s of this.suits) for(let v of this.values) this.deck.push({suit:s,value:v}); this.shuffle(); 
+                // deal: [closed, open, hand]
+                for(let i=0;i<3;i++){ this.player[0].push(this.deck.pop()); this.opponent[0].push(this.deck.pop()); }
+                for(let i=0;i<3;i++){ this.player[1].push(this.deck.pop()); this.opponent[1].push(this.deck.pop()); }
+                for(let i=0;i<3;i++){ this.player[2].push(this.deck.pop()); this.opponent[2].push(this.deck.pop()); }
             }
-            cardVal(c){return{'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10,'J':11,'Q':12,'K':13,'A':14,'2':15}[c.value]}
+            shuffle(){ for(let i=this.deck.length-1;i>0;i--){ let j=Math.random()*(i+1)|0; [this.deck[i],this.deck[j]]=[this.deck[j],this.deck[i]] } }
+            attach(){
+                document.getElementById('startBtn').onclick=()=>{ this.phase=1; this.updateStatus(); };
+                document.getElementById('playBtn').onclick=()=>{ this.play(); };
+                document.getElementById('takeBtn').onclick=()=>{ this.take(); };
+            }
             canPlay(c){
                 if(!this.pile.length) return true;
-                const top=this.pile[this.pile.length-1];
-                if(c.value==='2'||c.value==='10'||top.value==='2') return true;
-                if(top.value==='7') return this.cardVal(c)<=7;
-                return this.cardVal(c)>=this.cardVal(top);
+                let t=this.pile[this.pile.length-1];
+                if(c.value==='2'||c.value==='10'||t.value==='2') return true;
+                if(t.value==='7') return this.val(c)<=7;
+                return this.val(c)>=this.val(t);
             }
-            shouldBurn(){
-                if(!this.pile.length) return false;
-                const top=this.pile[this.pile.length-1];
-                if(top.value==='10') return true;
-                if(this.pile.length>=4){
-                    const lst=this.pile.slice(-4); if(lst.every(x=>x.value===lst[0].value)) return true;
-                }
-                return false;
-            }
+            val(c){ return {'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10,'J':11,'Q':12,'K':13,'A':14,'2':15}[c.value]; }
             render(){
-                ['playerHand','playerOpen','playerClosed','opponentHand','opponentOpen','opponentClosed'].forEach(id=>{
-                    const cont=document.getElementById(id); cont.innerHTML='';
-                    this[this.mapIdToArray(id)].forEach((c,i)=>{const d=document.createElement('div'); d.className='card'+((id==='opponentHand'||id==='opponentClosed')?' card-back':''); d.textContent=d.classList.contains('card-back')?'':' '+c.value+c.suit;
-                        d.addEventListener('click',()=>this.selectCard(id,i)); cont.appendChild(d);});
+                // opponent closed
+                ['Closed','Open','Hand'].forEach((type,i)=>{
+                    let idO='opponent'+type, idP='player'+type;
+                    let arrO=this.opponent[i], arrP=this.player[i];
+                    this.renderZone(idO,arrO,true);
+                    this.renderZone(idP,arrP,false);
                 });
                 document.getElementById('deckCount').textContent=this.deck.length;
-                document.getElementById('gameStatus').textContent=(this.gamePhase==='setup')?'בחר 3 קלפים לשולחן ואז לחץ "התחל משחק"':(this.currentPlayer==='player'?'התורך':'קלוד משחק...');
-                const pileEl=document.getElementById('pile'); pileEl.innerHTML=''; if(this.pile.length){const c=this.pile[this.pile.length-1]; const d=document.createElement('div'); d.className='card'; d.textContent=' '+c.value+c.suit; pileEl.appendChild(d);}
             }
-            mapIdToArray(id){
-                return id.charAt(0)==='p'? id.replace(/^(player|opponent)/,'$1') : id;
+            renderZone(id,arr,hide){
+                let el=document.getElementById(id), html='';
+                arr.forEach((c,i)=>{
+                    let cls='card'+(hide?' card-back':'')+(this.selected.includes(c)?' selected':'');
+                    html+=`<div class="${cls}" data-zone="${id}" data-index="${i}">${hide?'':c.value+c.suit}</div>`;
+                });
+                el.innerHTML=html;
+                if(id==='playerHand'||id==='playerOpen'||id==='playerClosed'){
+                    document.querySelectorAll('#'+id+' .card').forEach(d=>d.onclick=e=>{
+                        if(this.phase!==1||this.current!=='player') return;
+                        let z=e.currentTarget.dataset.zone, idx=+e.currentTarget.dataset.index;
+                        let card=this.player[['Closed','Open','Hand'].indexOf(z.replace('player',''))][idx];
+                        let sel=this.selected, same=sel.filter(x=>x.value===card.value).length;
+                        // toggle selection
+                        if(sel.includes(card)) sel.splice(sel.indexOf(card),1);
+                        else if(sel.length<4) sel.push(card);
+                        this.updateSelection();
+                    });
+                }
+                if(id==='opponentHand'||id==='opponentClosed') hide=true; // just default
             }
-            selectCard(id,i){
-                if(this.currentPlayer!=='player'||this.gamePhase==='setup') return;
-                const arr=this[id]; if(this.canPlay(arr[i])){ this.pile.push(arr.splice(i,1)[0]); this.postPlay(); } else { this.playerHand.push(...this.pile); this.pile=[]; this.postPlay(); }
+            updateSelection(){
+                document.querySelectorAll('.card').forEach(d=>{
+                    let idx=+d.dataset.index, zone=d.dataset.zone, ar=(zone.startsWith('player')?this.player:this.opponent)[['Closed','Open','Hand'].indexOf(zone.replace(/player|opponent/,''))];
+                    let c=ar[idx];
+                    if(this.selected.includes(c)) d.classList.add('selected'); else d.classList.remove('selected');
+                });
             }
-            playerPlay(){ this.postPlay(); }
-            playerTake(){ this.playerHand.push(...this.pile); this.pile=[]; this.switchTurn(); }
+            play(){
+                if(!this.selected.length) return;
+                let vals=this.selected.map(c=>c.value), allSame=vals.every(v=>v===vals[0]);
+                if(!allSame) return alert('בחרו קלפים מאותו ערך');
+                if(!this.selected.some(c=>this.canPlay(c))) return alert('אין מה לשחק');
+                this.pile.push(...this.selected);
+                this.removeSelected();
+                this.selected=[];
+                this.postPlay();
+            }
+            removeSelected(){
+                this.player.forEach(arr=>{
+                    this.selected.forEach(c=>{
+                        let i=arr.indexOf(c); if(i>=0) arr.splice(i,1);
+                    });
+                });
+            }
+            take(){ this.player[2].push(...this.pile); this.pile=[]; this.postPlay(); }
             postPlay(){
                 if(this.shouldBurn()){ this.pile=[]; }
-                this.fillHand(); this.switchTurn(); this.render();
+                while(this.player[2].length<3&&this.deck.length) this.player[2].push(this.deck.pop());
+                this.switch();
             }
-            switchTurn(){ this.currentPlayer=this.currentPlayer==='player'?'opponent':'player'; this.render(); if(this.currentPlayer==='opponent') setTimeout(()=>this.opponentMove(),500);}
+            shouldBurn(){ if(!this.pile.length) return false; let t=this.pile[this.pile.length-1]; if(t.value==='10') return true; if(this.pile.length>=4){ let l=this.pile.slice(-4); if(l.every(x=>x.value===l[0].value)) return true; } return false; }
+            switch(){ this.current=this.current==='player'?'opponent':'player'; this.updateStatus(); if(this.current==='opponent') setTimeout(()=>this.opponentMove(),500); }
             opponentMove(){
-                const avail=this.opponentHand.length?this.opponentHand:(this.opponentOpen.length?this.opponentOpen:this.opponentClosed);
-                const playable=avail.filter(c=>this.canPlay(c)); if(!playable.length){ this.opponentHand.push(...this.pile); this.pile=[]; return this.switchTurn();}
-                const card=playable.reduce((a,b)=>this.cardVal(a)<this.cardVal(b)?a:b);
-                avail.splice(avail.indexOf(card),1); this.pile.push(card); this.postPlay();
+                let arr=this.opponent[2].length?this.opponent[2]:(this.opponent[1].length?this.opponent[1]:this.opponent[0]);
+                let playable=arr.filter(c=>this.canPlay(c));
+                if(!playable.length){ this.opponent[2].push(...this.pile); this.pile=[]; this.switch(); return; }
+                let card=playable.reduce((a,b)=>this.val(a)<this.val(b)?a:b);
+                let arrIdx=this.opponent[2].indexOf(card)>=0?2:(this.opponent[1].indexOf(card)>=0?1:0);
+                this.opponent[arrIdx].splice(this.opponent[arrIdx].indexOf(card),1);
+                this.pile.push(card);
+                this.postPlay();
             }
-            fillHand(){while(this.playerHand.length<3&&this.deck.length) this.playerHand.push(this.deck.pop());}
+            updateStatus(){ document.getElementById('gameStatus').textContent=this.current==='player'?'התורך':'קלוד משחק...'; this.render(); }
         }
         window.addEventListener('load',()=>new ShitheadGame());
     </script>
