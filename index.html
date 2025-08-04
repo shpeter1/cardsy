@@ -1,169 +1,140 @@
 <!DOCTYPE html>
 <html dir="rtl" lang="he">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>🃏 השיטהאד של יצחקי 🃏</title>
-    <style>
-        /* Reset בסיסי */
-        * { margin:0; padding:0; box-sizing:border-box; font-family:Arial,sans-serif; -webkit-tap-highlight-color:transparent; }
-        body { background:linear-gradient(135deg,#2d5a27,#4a7c59); min-height:100vh; color:white; overflow-x:hidden; padding:clamp(8px,3vw,20px); }
-        .game-container { max-width:1200px; margin:0 auto; width:100%; }
-        .game-title { text-align:center; font-size:clamp(1.5rem,6vw,2.8rem); margin-bottom:clamp(12px,4vw,24px); text-shadow:2px 2px 4px rgba(0,0,0,0.5); padding:0 10px; }
-        .status { display:inline-block; background:rgba(0,0,0,0.6); color:#ffd700; padding:clamp(8px,2vw,12px) clamp(12px,4vw,16px); border-radius:8px; border:2px solid rgba(255,215,0,0.3); font-size:clamp(14px,3vw,18px); font-weight:bold; margin-bottom:clamp(12px,4vw,16px); word-wrap:break-word; }
-        .game-info{text-align:center;}
-        .game-area { display:grid; grid-template-rows:auto 1fr auto; gap:clamp(12px,3vw,20px); min-height:60vh; }
-        .opponent-area,.player-area { background:rgba(0,0,0,0.2); padding:clamp(12px,3vw,20px); border-radius:12px; }
-        .opponent-area h3,.player-area h3 { font-size:clamp(1rem,4vw,1.4rem); text-align:center; margin-bottom:clamp(8px,2vw,12px); }
-        .table-cards { display:flex; gap:clamp(6px,2vw,10px); justify-content:center; flex-wrap:wrap; margin:clamp(8px,2vw,12px) 0; }
-        .table-card-set > div:first-child { font-size:clamp(0.8rem,3vw,1rem); margin-bottom:clamp(4px,1vw,6px); }
-        .center-area { background:rgba(0,0,0,0.3); padding:clamp(16px,4vw,24px); border-radius:15px; text-align:center; display:flex; flex-direction:column; align-items:center; justify-content:center; }
-        .deck { display:flex; flex-direction:column; align-items:center; margin-bottom:clamp(12px,3vw,16px); }
-        .deck > div:first-child { font-size:clamp(0.9rem,3vw,1rem); margin-bottom:clamp(4px,1vw,6px); }
-        .pile { border:3px dashed rgba(255,255,255,0.5); border-radius:10px; min-height:clamp(60px,15vw,100px); width:100%; max-width:160px; display:flex; align-items:center; justify-content:center; margin:clamp(12px,3vw,16px) 0; }
-        .buttons { display:flex; flex-wrap:wrap; gap:clamp(6px,2vw,10px); justify-content:center; width:100%; }
-        .btn { flex:1 1 auto; min-width:clamp(80px,25vw,140px); padding:clamp(10px,3vw,12px) clamp(16px,4vw,20px); font-size:clamp(0.9rem,3vw,1.1rem); font-weight:bold; border:none; border-radius:8px; cursor:pointer; transition:transform 0.2s ease,box-shadow 0.2s ease; touch-action:manipulation; user-select:none; }
-        .btn:active{transform:scale(0.95);} .btn-primary{background:#0d6efd;color:#fff;} .btn-secondary{background:#6c757d;color:#fff;} .btn-danger{background:#dc3545;color:#fff;}
-        .cards-container{display:flex;flex-wrap:wrap;gap:clamp(4px,1.5vw,8px);justify-content:center;margin:clamp(8px,2vw,12px) 0;max-width:100%;padding:0 5px;}
-        .card{width:clamp(60px,18vw,100px);height:clamp(85px,25vw,140px);background:#fff;border:2px solid #ddd;border-radius:8px;position:relative;display:flex;align-items:center;justify-content:center;font-weight:bold;color:#333;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.15);transition:transform 0.2s ease,box-shadow 0.2s ease;touch-action:manipulation;}
-        @media(hover:hover){.card:hover{transform:translateY(-3px);box-shadow:0 5px 15px rgba(0,0,0,0.3);}} .card:active{transform:scale(0.97);}
-        .card.selected{background:#fff3cd;border-color:#ffc107;transform:translateY(-5px);box-shadow:0 4px 12px rgba(255,193,7,0.5);} .card-back{background:linear-gradient(135deg,#1e3a8a,#3b82f6);cursor:default;}
-        .rules{background:rgba(0,0,0,0.4);padding:clamp(12px,3vw,16px);border-radius:10px;margin-top:clamp(16px,4vw,24px);}
-        .rules h3{color:#ffd700;font-size:clamp(1rem,3vw,1.2rem);margin-bottom:clamp(8px,2vw,12px);} .rules li{font-size:clamp(0.9rem,3vw,1rem);margin:clamp(6px,2vw,8px) 0;line-height:1.4;}
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>🃏 השיטהאד של יצחקי 🃏</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif;-webkit-tap-highlight-color:transparent;}
+    body{background:linear-gradient(135deg,#2d5a27,#4a7c59);min-height:100vh;color:#fff;padding:10px;}
+    .game-container{max-width:800px;margin:auto;}
+    .game-title{text-align:center;font-size:2rem;margin-bottom:1rem;}
+    .status{text-align:center;background:rgba(0,0,0,0.6);padding:10px;border-radius:5px;margin-bottom:1rem;}
+    .game-area{display:grid;grid-template-rows:auto 1fr auto;gap:1rem;}
+    .opponent-area,.player-area{background:rgba(0,0,0,0.3);padding:10px;border-radius:8px;}
+    .opponent-area h3,.player-area h3{text-align:center;margin-bottom:0.5rem;}
+    .cards-container{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;}
+    .card{width:60px;height:90px;background:#fff;border:1px solid #ccc;border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:bold;color:#333;cursor:pointer;user-select:none;touch-action:manipulation;}
+    .card-back{background:linear-gradient(135deg,#1e3a8a,#3b82f6);color:transparent;}
+    .card.selected{outline:3px solid #ffc107;}
+    .center-area{text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:8px;}
+    button{padding:8px 12px;margin:4px;border:none;border-radius:5px;font-size:1rem;}
+    .btn-primary{background:#0d6efd;color:#fff;}
+    .btn-secondary{background:#6c757d;color:#fff;}
+  </style>
 </head>
 <body>
-    <div class="game-container">
-        <h1 class="game-title">🃏 השיטהאד של יצחקי 🃏</h1>
-        <div class="game-info"><div class="status" id="gameStatus">בחר 3 קלפים לשולחן ואז לחץ "התחל משחק"</div></div>
-        <div class="game-area">
-            <div class="opponent-area"><h3>🧔 יהודה</h3>
-                <div class="table-cards"><div class="table-card-set"><div>סגורים</div><div class="cards-container" id="opponentClosed"></div></div></div>
-                <div class="table-cards"><div class="table-card-set"><div>פתוחים</div><div class="cards-container" id="opponentOpen"></div></div></div>
-                <div class="cards-container" id="opponentHand"></div>
-            </div>
-            <div class="center-area">
-                <div class="deck"><div>חפיסה (<span id="deckCount">0</span>)</div><div class="card card-back" id="deck"></div></div>
-                <div class="pile" id="pile"><div>ערימת השלכה</div></div>
-                <div class="buttons">
-                    <button class="btn btn-primary" id="startBtn">התחל משחק</button>
-                    <button class="btn btn-primary" id="playBtn">שחק קלפים</button>
-                    <button class="btn btn-secondary" id="takeBtn">קח ערימה</button>
-                </div>
-            </div>
-            <div class="player-area"><h3>👤 את/ה</h3>
-                <div class="table-cards"><div class="table-card-set"><div>סגורים</div><div class="cards-container" id="playerClosed"></div></div></div>
-                <div class="table-cards"><div class="table-card-set"><div>פתוחים</div><div class="cards-container" id="playerOpen"></div></div></div>
-                <div class="cards-container" id="playerHand"></div>
-            </div>
-        </div>
-    <div class="rules"><h3>חוקי המשחק:</h3><ul><li>2–איפוס</li><li>7–נמוך/שווה</li><li>8–דילוג</li><li>10–שורף</li><li>4 ברצף–שורף</li></ul></div>
+  <div class="game-container">
+    <h1 class="game-title">🃏 השיטהאד של יצחקי 🃏</h1>
+    <div id="gameStatus" class="status">התחל משחק לבחירת קלפים</div>
+    <div class="game-area">
+      <div class="opponent-area">
+        <h3>🧔 יהודה</h3>
+        <div class="cards-container" id="opponentClosed"></div>
+        <div class="cards-container" id="opponentOpen"></div>
+        <div class="cards-container" id="opponentHand"></div>
+      </div>
+      <div class="center-area">
+        <div>חפיסה: <span id="deckCount">0</span></div>
+        <div class="cards-container" id="pile"></div>
+        <button id="startBtn" class="btn-primary">התחל משחק</button>
+        <button id="playBtn" class="btn-primary" disabled>שחק קלפים</button>
+        <button id="takeBtn" class="btn-secondary" disabled>קח ערימה</button>
+      </div>
+      <div class="player-area">
+        <h3>👤 אתה</h3>
+        <div class="cards-container" id="playerClosed"></div>
+        <div class="cards-container" id="playerOpen"></div>
+        <div class="cards-container" id="playerHand"></div>
+      </div>
     </div>
-    <script>
-        class ShitheadGame {
-            constructor(){
-                this.suits=['♠','♥','♦','♣']; this.values=['3','4','5','6','7','8','9','10','J','Q','K','A','2'];
-                this.deck=[]; this.pile=[]; this.selected=[]; 
-                this.player=[[],[],[]]; this.opponent=[[],[],[]];
-                this.current='player'; this.phase=0;
-                this.init(); this.attach(); this.render();
-            }
-            init(){ for(let s of this.suits) for(let v of this.values) this.deck.push({suit:s,value:v}); this.shuffle(); 
-                // deal: [closed, open, hand]
-                for(let i=0;i<3;i++){ this.player[0].push(this.deck.pop()); this.opponent[0].push(this.deck.pop()); }
-                for(let i=0;i<3;i++){ this.player[1].push(this.deck.pop()); this.opponent[1].push(this.deck.pop()); }
-                for(let i=0;i<3;i++){ this.player[2].push(this.deck.pop()); this.opponent[2].push(this.deck.pop()); }
-            }
-            shuffle(){ for(let i=this.deck.length-1;i>0;i--){ let j=Math.random()*(i+1)|0; [this.deck[i],this.deck[j]]=[this.deck[j],this.deck[i]] } }
-            attach(){
-                document.getElementById('startBtn').onclick=()=>{ this.phase=1; this.updateStatus(); };
-                document.getElementById('playBtn').onclick=()=>{ this.play(); };
-                document.getElementById('takeBtn').onclick=()=>{ this.take(); };
-            }
-            canPlay(c){
-                if(!this.pile.length) return true;
-                let t=this.pile[this.pile.length-1];
-                if(c.value==='2'||c.value==='10'||t.value==='2') return true;
-                if(t.value==='7') return this.val(c)<=7;
-                return this.val(c)>=this.val(t);
-            }
-            val(c){ return {'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10,'J':11,'Q':12,'K':13,'A':14,'2':15}[c.value]; }
-            render(){
-                // opponent closed
-                ['Closed','Open','Hand'].forEach((type,i)=>{
-                    let idO='opponent'+type, idP='player'+type;
-                    let arrO=this.opponent[i], arrP=this.player[i];
-                    this.renderZone(idO,arrO,true);
-                    this.renderZone(idP,arrP,false);
-                });
-                document.getElementById('deckCount').textContent=this.deck.length;
-            }
-            renderZone(id,arr,hide){
-                let el=document.getElementById(id), html='';
-                arr.forEach((c,i)=>{
-                    let cls='card'+(hide?' card-back':'')+(this.selected.includes(c)?' selected':'');
-                    html+=`<div class="${cls}" data-zone="${id}" data-index="${i}">${hide?'':c.value+c.suit}</div>`;
-                });
-                el.innerHTML=html;
-                if(id==='playerHand'||id==='playerOpen'||id==='playerClosed'){
-                    document.querySelectorAll('#'+id+' .card').forEach(d=>d.onclick=e=>{
-                        if(this.phase!==1||this.current!=='player') return;
-                        let z=e.currentTarget.dataset.zone, idx=+e.currentTarget.dataset.index;
-                        let card=this.player[['Closed','Open','Hand'].indexOf(z.replace('player',''))][idx];
-                        let sel=this.selected, same=sel.filter(x=>x.value===card.value).length;
-                        // toggle selection
-                        if(sel.includes(card)) sel.splice(sel.indexOf(card),1);
-                        else if(sel.length<4) sel.push(card);
-                        this.updateSelection();
-                    });
-                }
-                if(id==='opponentHand'||id==='opponentClosed') hide=true; // just default
-            }
-            updateSelection(){
-                document.querySelectorAll('.card').forEach(d=>{
-                    let idx=+d.dataset.index, zone=d.dataset.zone, ar=(zone.startsWith('player')?this.player:this.opponent)[['Closed','Open','Hand'].indexOf(zone.replace(/player|opponent/,''))];
-                    let c=ar[idx];
-                    if(this.selected.includes(c)) d.classList.add('selected'); else d.classList.remove('selected');
-                });
-            }
-            play(){
-                if(!this.selected.length) return;
-                let vals=this.selected.map(c=>c.value), allSame=vals.every(v=>v===vals[0]);
-                if(!allSame) return alert('בחרו קלפים מאותו ערך');
-                if(!this.selected.some(c=>this.canPlay(c))) return alert('אין מה לשחק');
-                this.pile.push(...this.selected);
-                this.removeSelected();
-                this.selected=[];
-                this.postPlay();
-            }
-            removeSelected(){
-                this.player.forEach(arr=>{
-                    this.selected.forEach(c=>{
-                        let i=arr.indexOf(c); if(i>=0) arr.splice(i,1);
-                    });
-                });
-            }
-            take(){ this.player[2].push(...this.pile); this.pile=[]; this.postPlay(); }
-            postPlay(){
-                if(this.shouldBurn()){ this.pile=[]; }
-                while(this.player[2].length<3&&this.deck.length) this.player[2].push(this.deck.pop());
-                this.switch();
-            }
-            shouldBurn(){ if(!this.pile.length) return false; let t=this.pile[this.pile.length-1]; if(t.value==='10') return true; if(this.pile.length>=4){ let l=this.pile.slice(-4); if(l.every(x=>x.value===l[0].value)) return true; } return false; }
-            switch(){ this.current=this.current==='player'?'opponent':'player'; this.updateStatus(); if(this.current==='opponent') setTimeout(()=>this.opponentMove(),500); }
-            opponentMove(){
-                let arr=this.opponent[2].length?this.opponent[2]:(this.opponent[1].length?this.opponent[1]:this.opponent[0]);
-                let playable=arr.filter(c=>this.canPlay(c));
-                if(!playable.length){ this.opponent[2].push(...this.pile); this.pile=[]; this.switch(); return; }
-                let card=playable.reduce((a,b)=>this.val(a)<this.val(b)?a:b);
-                let arrIdx=this.opponent[2].indexOf(card)>=0?2:(this.opponent[1].indexOf(card)>=0?1:0);
-                this.opponent[arrIdx].splice(this.opponent[arrIdx].indexOf(card),1);
-                this.pile.push(card);
-                this.postPlay();
-            }
-            updateStatus(){ document.getElementById('gameStatus').textContent=this.current==='player'?'התורך':'קלוד משחק...'; this.render(); }
-        }
-        window.addEventListener('load',()=>new ShitheadGame());
-    </script>
+  </div>
+  <script>
+    class Game {
+      constructor(){
+        this.suits=['♠','♥','♦','♣'];
+        this.values=['3','4','5','6','7','8','9','10','J','Q','K','A','2'];
+        this.deck=[]; this.pile=[];
+        this.playerClosed=[]; this.playerOpen=[]; this.playerHand=[];
+        this.opponentClosed=[]; this.opponentOpen=[]; this.opponentHand=[];
+        this.selected=[];
+        this.phase=0; // 0 setup,1 play
+        this.initDeck(); this.attach();
+      }
+      initDeck(){
+        this.deck=[]; for(let s of this.suits) for(let v of this.values) this.deck.push({suit:s,value:v});
+        for(let i=this.deck.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[this.deck[i],this.deck[j]]=[this.deck[j],this.deck[i]];}
+        document.getElementById('deckCount').textContent=this.deck.length;
+      }
+      attach(){
+        document.getElementById('startBtn').onclick=()=>this.start();
+        document.getElementById('playBtn').onclick=()=>this.play();
+        document.getElementById('takeBtn').onclick=()=>this.take();
+      }
+      start(){
+        // deal 3 closed,3 open,3 hand
+        for(let i=0;i<3;i++){this.playerClosed.push(this.deck.pop());this.opponentClosed.push(this.deck.pop());}
+        for(let i=0;i<3;i++){this.playerOpen.push(this.deck.pop());this.opponentOpen.push(this.deck.pop());}
+        for(let i=0;i<3;i++){this.playerHand.push(this.deck.pop());this.opponentHand.push(this.deck.pop());}
+        this.phase=1; this.update();
+      }
+      renderZone(id,arr,hide){
+        const cont=document.getElementById(id); cont.innerHTML='';
+        arr.forEach((c,i)=>{
+          let div=document.createElement('div');
+          div.className='card'+(hide?' card-back':'');
+          div.textContent=hide?'':c.value+c.suit;
+          div.onclick=()=>this.clickCard(id,i);
+          cont.appendChild(div);
+        });
+      }
+      clickCard(zone,i){
+        if(this.phase!==1||zone!=='playerHand')return;
+        const card=this.playerHand.splice(i,1)[0];
+        // toggle selection
+        let idx=this.selected.indexOf(card);
+        if(idx>-1) this.selected.splice(idx,1);
+        else this.selected.push(card);
+        this.playerHand.push(card);
+        this.update();
+      }
+      canPlay(card){
+        if(!this.pile.length) return true;
+        const top=this.pile[this.pile.length-1];
+        if(card.value==='2'||card.value==='10'||top.value==='2') return true;
+        if(top.value==='7') return this.val(card)<=7;
+        return this.val(card)>=this.val(top);
+      }
+      val(c){return{'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10,'J':11,'Q':12,'K':13,'A':14,'2':15}[c.value];}
+      play(){
+        if(!this.selected.length)return;
+        if(!this.selected.every(c=>c.value===this.selected[0].value)){alert('בחר קלפים מאותו ערך');return;}
+        if(!this.selected.some(c=>this.canPlay(c))){alert('לא חוקי');return;}
+        this.pile.push(...this.selected);
+        this.selected=[];
+        this.update();
+      }
+      take(){
+        this.playerHand.push(...this.pile);
+        this.pile=[];
+        this.update();
+      }
+      update(){
+        this.renderZone('playerClosed',this.playerClosed,true);
+        this.renderZone('playerOpen',this.playerOpen,false);
+        this.renderZone('playerHand',this.playerHand,false);
+        this.renderZone('opponentClosed',this.opponentClosed,true);
+        this.renderZone('opponentOpen',this.opponentOpen,false);
+        this.renderZone('opponentHand',this.opponentHand,false);
+        this.renderZone('pile',this.pile,false);
+        document.getElementById('deckCount').textContent=this.deck.length;
+        document.getElementById('gameStatus').textContent = this.phase===0?
+          'בחר 3 הפתוח,3 סגור ו-3 ביד ואז התחלת משחק':'בחר קלפים ואז לחץ שחק';
+        document.getElementById('playBtn').disabled=this.selected.length===0;
+        document.getElementById('takeBtn').disabled=false;
+      }
+    }
+    window.onload=()=>window.g=new Game();
+  </script>
 </body>
 </html>
