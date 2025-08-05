@@ -101,7 +101,8 @@
       background: #6c757d;
       color: #fff;
     }
-    /* pile stacking */
+
+    /* ערימת הקלפים תיערם זה מעל זה */
     #pile {
       position: relative;
       width: 12vw;
@@ -114,6 +115,7 @@
       left: 0;
       margin: 0;
     }
+
     /* Responsive grid adjustments */
     @media (max-width: 600px) {
       .areas {
@@ -176,8 +178,8 @@
           [this.deck[i], this.deck[j]] = [this.deck[j], this.deck[i]];
         }
         document.getElementById('start').addEventListener('click', () => this.startGame());
-        document.getElementById('play' ).addEventListener('click', () => this.playCards());
-        document.getElementById('take' ).addEventListener('click', () => this.takePile());
+        document.getElementById('play').addEventListener('click', () => this.playCards());
+        document.getElementById('take').addEventListener('click', () => this.takePile());
         this.update();
       }
       startGame() {
@@ -205,8 +207,7 @@
           if (!hide) d.textContent = c.v + c.s;
           if (clickable) {
             d.addEventListener('pointerdown', e => {
-              e.preventDefault();
-              this.selectCard(c, d);
+              e.preventDefault(); this.selectCard(c, d);
             }, { passive: false });
           }
           cont.appendChild(d);
@@ -228,13 +229,8 @@
       selectCard(card, elem) {
         if (this.phase !== 1 || this.turn !== 'player') return;
         const idx = this.selected.indexOf(card);
-        if (idx > -1) {
-          this.selected.splice(idx, 1);
-          elem.classList.remove('selected');
-        } else {
-          this.selected.push(card);
-          elem.classList.add('selected');
-        }
+        if (idx > -1) { this.selected.splice(idx, 1); elem.classList.remove('selected'); }
+        else { this.selected.push(card); elem.classList.add('selected'); }
         document.getElementById('play').disabled = this.selected.length === 0;
         document.getElementById('take').disabled = this.selected.length > 0;
       }
@@ -243,8 +239,8 @@
         if (this.pile.length) {
           const top = this.pile[this.pile.length - 1];
           if (!this.selected.every(c => {
-            if (c.v === '2' || c.v === '10') return true;
-            if (top.v === '7') return this.val(c) <= this.val(top);
+            if (c.v==='2'||c.v==='10') return true;
+            if (top.v==='7') return this.val(c) <= this.val(top);
             return this.val(c) >= this.val(top);
           })) { alert('לא ניתן לשחק'); return; }
         }
@@ -253,45 +249,24 @@
           this.player[z] = this.player[z].filter(c => !this.selected.includes(c));
         });
         this.selected = [];
-        while (this.player.hand.length < 3 && this.deck.length) {
-          this.player.hand.push(this.deck.pop());
-        }
-        this.turn = 'opp';
-        this.update();
-        setTimeout(() => this.oppPlay(), 500);
+        while (this.player.hand.length < 3 && this.deck.length) this.player.hand.push(this.deck.pop());
+        this.turn = 'opp'; this.update(); setTimeout(()=>this.oppPlay(),500);
       }
       takePile() {
-        this.player.hand.push(...this.pile);
-        this.pile = [];
-        this.turn = 'opp';
-        this.update();
-        setTimeout(() => this.oppPlay(), 500);
+        this.player.hand.push(...this.pile); this.pile=[]; this.turn='opp'; this.update(); setTimeout(()=>this.oppPlay(),500);
       }
       oppPlay() {
-        let avail = this.opp.hand.length ? this.opp.hand : (this.opp.open.length ? this.opp.open : this.opp.closed);
-        let playable = avail.filter(c => {
-          if (!this.pile.length) return true;
-          const top = this.pile[this.pile.length - 1];
-          if (c.v === '2' || c.v === '10') return true;
-          if (top.v === '7') return this.val(c) <= this.val(top);
-          return this.val(c) >= this.val(top);
-        });
-        if (!playable.length) {
-          this.opp.hand.push(...this.pile);
-          this.pile = [];
-        } else {
-          const card = playable.reduce((a,b) => this.val(a) < this.val(b) ? a : b);
-          ['hand','open','closed'].forEach(z => {
-            const i = this.opp[z].indexOf(card);
-            if (i > -1) this.opp[z].splice(i, 1);
-          });
-          this.pile.push(card);
-          while (this.opp.hand.length < 3 && this.deck.length) {
-            this.opp.hand.push(this.deck.pop());
-          }
+        let avail = this.opp.hand.length?this.opp.hand:(this.opp.open.length?this.opp.open:this.opp.closed);
+        let playable = avail.filter(c=>{if(!this.pile.length)return true;const top=this.pile[this.pile.length-1];if(c.v==='2'||c.v==='10')return true; if(top.v==='7')return this.val(c)<=this.val(top);return this.val(c)>=this.val(top);});
+        if(!playable.length){ this.opp.hand.push(...this.pile); this.pile=[]; }
+        else { const card = playable.reduce((a,b)=>this.val(a)<this.val(b)?a:b);
+          ['hand','open','closed'].forEach(z=>{const i=this.opp[z].indexOf(card);if(i>-1)this.opp[z].splice(i,1);});
+          this.pile.push(card); while(this.opp.hand.length<3&&this.deck.length)this.opp.hand.push(this.deck.pop());
         }
-        this.turn = 'player';
-        this.update();
+        this.turn='player'; this.update();
       }
     }
     window.onload = () => new Shithead();
+  </script>
+</body>
+</html>
