@@ -55,11 +55,9 @@
       justify-content: center;
     }
     .card {
-       pointer-events: auto;
-      /* גודל יחסי לרוחב המסך, יחס 2:3 */
+      pointer-events: auto;
       width: 12vw;
       height: calc(12vw * 1.5);
-      /* גבולות מינימום ומקסימום */
       min-width: 40px;
       min-height: 60px;
       max-width: 60px;
@@ -103,20 +101,30 @@
       background: #6c757d;
       color: #fff;
     }
-    /* כשהרוחב עד 600px – נטבח טור אחד */
-@media (max-width: 600px) {
-  .areas {
-    grid-template-columns: 1fr !important;
-  }
-}
-
-/* במצב אופק על מסכים עד 900px – שתי עמודות */
-@media (orientation: landscape) and (max-width: 900px) {
-  .areas {
-    grid-template-columns: 1fr 1fr !important;
-  }
-}
-
+    /* pile stacking */
+    #pile {
+      position: relative;
+      width: 12vw;
+      height: calc(12vw * 1.5);
+      margin: 0 auto;
+    }
+    #pile .card {
+      position: absolute;
+      top: 0;
+      left: 0;
+      margin: 0;
+    }
+    /* Responsive grid adjustments */
+    @media (max-width: 600px) {
+      .areas {
+        grid-template-columns: 1fr !important;
+      }
+    }
+    @media (orientation: landscape) and (max-width: 900px) {
+      .areas {
+        grid-template-columns: 1fr 1fr !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -145,7 +153,6 @@
       </div>
     </div>
   </div>
-
   <script>
     class Shithead {
       constructor() {
@@ -160,9 +167,7 @@
         this.turn  = 'player';
         this.init();
       }
-
       init() {
-        // בניית החבילה וערבול
         for (let s of this.suits)
           for (let v of this.values)
             this.deck.push({ s, v });
@@ -170,31 +175,27 @@
           let j = Math.floor(Math.random() * (i + 1));
           [this.deck[i], this.deck[j]] = [this.deck[j], this.deck[i]];
         }
-        // חיבור כפתורים
         document.getElementById('start').addEventListener('click', () => this.startGame());
         document.getElementById('play' ).addEventListener('click', () => this.playCards());
         document.getElementById('take' ).addEventListener('click', () => this.takePile());
         this.update();
       }
-
       startGame() {
-        // חלוקה: 3 סגורים, 3 פתוחים, 3 ביד לכל שחקן
         for (let i = 0; i < 3; i++) {
           this.player.closed.push(this.deck.pop());
-          this.opp.closed   .push(this.deck.pop());
+          this.opp.closed.push(this.deck.pop());
         }
         for (let i = 0; i < 3; i++) {
           this.player.open.push(this.deck.pop());
-          this.opp.open   .push(this.deck.pop());
+          this.opp.open.push(this.deck.pop());
         }
         for (let i = 0; i < 3; i++) {
           this.player.hand.push(this.deck.pop());
-          this.opp.hand   .push(this.deck.pop());
+          this.opp.hand.push(this.deck.pop());
         }
         this.phase = 1;
         this.update();
       }
-
       renderZone(id, arr, hide, clickable) {
         const cont = document.getElementById(id);
         cont.innerHTML = '';
@@ -202,85 +203,50 @@
           const d = document.createElement('div');
           d.className = 'card' + (hide ? ' card-back' : '');
           if (!hide) d.textContent = c.v + c.s;
-
           if (clickable) {
-  // לחיצה בעכבר
-  d.addEventListener('click', () => this.selectCard(c, d));
-
-  // Pointer Events (כל הדפדפנים המודרניים)
-  d.addEventListener('pointerdown', e => {
-    e.preventDefault();
-    this.selectCard(c, d);
-  });
-
-  // touchstart עם fallback לגרסאות ישנות
-  function onTouchStart(e) {
-    e.preventDefault();
-    this.selectCard(c, d);
-  }
-  try {
-    d.addEventListener('touchstart', onTouchStart.bind(this), { passive: false });
-  } catch {
-    d.addEventListener('touchstart', onTouchStart.bind(this), false);
-  }
-}
-
-
+            d.addEventListener('pointerdown', e => {
+              e.preventDefault();
+              this.selectCard(c, d);
+            }, { passive: false });
+          }
           cont.appendChild(d);
         });
       }
-
       update() {
         document.getElementById('status').textContent = this.phase === 0 ? 'לחץ להתחלת משחק' : 'תורך';
         document.getElementById('deckCount').textContent = this.deck.length;
-        this.renderZone('plClosed', this.player.closed, true,  false);
-        this.renderZone('plOpen',   this.player.open,   false, false);
-        this.renderZone('plHand',   this.player.hand,   false, true);
-        this.renderZone('oppClosed', this.opp.closed,   true,  false);
-        this.renderZone('oppOpen',   this.opp.open,     false, false);
-        this.renderZone('oppHand',   this.opp.hand,     false, false);
-        this.renderZone('pile',      this.pile,         false, false);
-
-// כפתור ״לקח ערימה״ מושבת רק כשיש בחירה (שבמקרה כזה משתמש ישחק ולא ייקח)
-document.getElementById('take').disabled = this.selected.length > 0;
+        this.renderZone('plClosed', this.player.closed, true, false);
+        this.renderZone('plOpen', this.player.open, false, false);
+        this.renderZone('plHand', this.player.hand, false, true);
+        this.renderZone('oppClosed', this.opp.closed, true, false);
+        this.renderZone('oppOpen', this.opp.open, false, false);
+        this.renderZone('oppHand', this.opp.hand, false, false);
+        this.renderZone('pile', this.pile, false, false);
+        document.getElementById('play').disabled = this.selected.length === 0;
+        document.getElementById('take').disabled = this.selected.length > 0;
       }
-
-    selectCard(card, elem) {
-  if (this.phase !== 1 || this.turn !== 'player') return;
-  const idx = this.selected.indexOf(card);
-  if (idx > -1) {
-    // ביטול בחירה
-    this.selected.splice(idx, 1);
-    elem.classList.remove('selected');
-  } else {
-    // הוספה לכל קלף, בלי בדיקת ערך
-    this.selected.push(card);
-    elem.classList.add('selected');
-  }
-
-  // עדכון כפתורים מיידי
-  document.getElementById('play').disabled = this.selected.length === 0;
-  // רק אם אין בחירה, מאפשרים “לקחת ערימה”
-  document.getElementById('take').disabled = this.selected.length > 0;
-}
-
-
-      val(c) {
-        return this.values.indexOf(c.v);
+      selectCard(card, elem) {
+        if (this.phase !== 1 || this.turn !== 'player') return;
+        const idx = this.selected.indexOf(card);
+        if (idx > -1) {
+          this.selected.splice(idx, 1);
+          elem.classList.remove('selected');
+        } else {
+          this.selected.push(card);
+          elem.classList.add('selected');
+        }
+        document.getElementById('play').disabled = this.selected.length === 0;
+        document.getElementById('take').disabled = this.selected.length > 0;
       }
-
+      val(c) { return this.values.indexOf(c.v); }
       playCards() {
-        // לוגיקת משחק בסיסית
         if (this.pile.length) {
           const top = this.pile[this.pile.length - 1];
           if (!this.selected.every(c => {
             if (c.v === '2' || c.v === '10') return true;
             if (top.v === '7') return this.val(c) <= this.val(top);
             return this.val(c) >= this.val(top);
-          })) {
-            alert('לא ניתן לשחק');
-            return;
-          }
+          })) { alert('לא ניתן לשחק'); return; }
         }
         this.pile.push(...this.selected);
         ['hand','open'].forEach(z => {
@@ -294,7 +260,6 @@ document.getElementById('take').disabled = this.selected.length > 0;
         this.update();
         setTimeout(() => this.oppPlay(), 500);
       }
-
       takePile() {
         this.player.hand.push(...this.pile);
         this.pile = [];
@@ -302,11 +267,8 @@ document.getElementById('take').disabled = this.selected.length > 0;
         this.update();
         setTimeout(() => this.oppPlay(), 500);
       }
-
       oppPlay() {
-        let avail = this.opp.hand.length ? this.opp.hand :
-                    this.opp.open.length ? this.opp.open :
-                    this.opp.closed;
+        let avail = this.opp.hand.length ? this.opp.hand : (this.opp.open.length ? this.opp.open : this.opp.closed);
         let playable = avail.filter(c => {
           if (!this.pile.length) return true;
           const top = this.pile[this.pile.length - 1];
@@ -332,8 +294,4 @@ document.getElementById('take').disabled = this.selected.length > 0;
         this.update();
       }
     }
-
     window.onload = () => new Shithead();
-  </script>
-</body>
-</html>
