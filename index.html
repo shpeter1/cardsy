@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html dir="rtl" lang="he">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>🃏 השיטהאד של יצחקי 🃏</title>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; font-family:Arial,sans-serif; -webkit-tap-highlight-color:transparent; }
@@ -46,17 +46,16 @@
     <div class="areas">
       <div class="opponent-area">
         <h3>🧔 יהודה</h3>
-        <!-- לא מגלים ליריב קלפים פתוחים או ביד -->
         <div id="oppClosed" class="cards-container"></div>
         <div id="oppOpen"   class="cards-container"></div>
         <div id="oppHand"   class="cards-container"></div>
       </div>
       <div class="center-area">
         <div>חפיסה: <span id="deckCount">0</span></div>
-        <div id="pile"       class="cards-container"></div>
-        <button id="start"   class="btn-primary">התחל משחק</button>
-        <button id="play"    class="btn-primary" disabled>שחק קלפים</button>
-        <button id="take"    class="btn-secondary" disabled>קח ערימה</button>
+        <div id="pile" class="cards-container"></div>
+        <button id="start" class="btn-primary">התחל משחק</button>
+        <button id="play" class="btn-primary" disabled>שחק קלפים</button>
+        <button id="take" class="btn-secondary" disabled>קח ערימה</button>
       </div>
       <div class="player-area">
         <h3>👤 אתה</h3>
@@ -79,150 +78,147 @@
         this.init();
       }
 
-      init(){
-        // build & shuffle
-        for(let s of this.suits) for(let v of this.values) this.deck.push({s,v});
-        for(let i=this.deck.length-1;i>0;i--){
+      init() {
+        // build & shuffle deck
+        for (let s of this.suits) for (let v of this.values) this.deck.push({s,v});
+        for (let i=this.deck.length-1; i>0; i--){
           let j=Math.floor(Math.random()*(i+1));
-          [this.deck[i],this.deck[j]]=[this.deck[j],this.deck[i]];
+          [this.deck[i], this.deck[j]]=[this.deck[j], this.deck[i]];
         }
-        // attach once
+        // attach buttons
         const startBtn = document.getElementById('start');
-        startBtn.addEventListener('click',()=>{ this.startGame(); startBtn.disabled=true; });
-        document.getElementById('play').addEventListener('click',()=>this.playCards());
-        document.getElementById('take').addEventListener('click',()=>this.takePile());
+        startBtn.addEventListener('click', ()=>{
+          this.startGame();
+          startBtn.disabled = true;
+        });
+        document.getElementById('play').addEventListener('click', ()=>this.playCards());
+        document.getElementById('take').addEventListener('click', ()=>this.takePile());
         this.update();
       }
 
-      startGame(){
-        for(let i=0;i<3;i++){
-          this.player.closed.push(this.deck.pop()); this.opp.closed.push(this.deck.pop());
+      startGame() {
+        for (let i=0; i<3; i++){
+          this.player.closed.push(this.deck.pop());
+          this.opp.closed.push(this.deck.pop());
         }
-        for(let i=0;i<3;i++){
-          this.player.open.push(this.deck.pop()); this.opp.open.push(this.deck.pop());
+        for (let i=0; i<3; i++){
+          this.player.open.push(this.deck.pop());
+          this.opp.open.push(this.deck.pop());
         }
-        for(let i=0;i<3;i++){
-          this.player.hand.push(this.deck.pop()); this.opp.hand.push(this.deck.pop());
+        for (let i=0; i<3; i++){
+          this.player.hand.push(this.deck.pop());
+          this.opp.hand.push(this.deck.pop());
         }
-        this.phase=1; this.update();
+        this.phase=1;
+        this.update();
       }
 
-      renderZone(id, arr, hide, clickable){
-        const cont=document.getElementById(id);
-        cont.innerHTML='';
+      renderZone(id, arr, hide, clickable) {
+        const cont = document.getElementById(id);
+        cont.innerHTML = '';
         arr.forEach(c=>{
-          const d=document.createElement('div');
-          d.className='card'+(hide?' card-back':'');
-          if(!hide) d.textContent=c.v+c.s;
-          if(clickable){
-            d.addEventListener('pointerdown',e=>{
-              e.preventDefault(); this.selectCard(c,d);
-            },{passive:false});
+          const d = document.createElement('div');
+          d.className = 'card' + (hide ? ' card-back' : '');
+          if (!hide) d.textContent = c.v + c.s;
+          if (clickable) {
+            d.addEventListener('click', e => { e.preventDefault(); this.selectCard(c,d); });
+            d.addEventListener('pointerdown', e => { e.preventDefault(); this.selectCard(c,d); }, {passive:false});
           }
           cont.appendChild(d);
         });
       }
 
-      update(){
-        document.getElementById('status').textContent=
-          this.phase===0?'לחץ להתחלת משחק':'תורך';
-        document.getElementById('deckCount').textContent=this.deck.length;
+      update() {
+        document.getElementById('status').textContent = this.phase===0 ? 'לחץ להתחלת משחק' : 'תורך';
+        document.getElementById('deckCount').textContent = this.deck.length;
 
-        // חשב האם בכלל הגענו ל־stage של השלושה הסגורים
-const noHand = this.player.hand.length === 0;
-const noOpen = this.player.open.length === 0;
-const revealClosed = noHand && noOpen && this.phase === 1 && this.turn === 'player';
+        // show closed only when hand+open empty
+        const noHand = this.player.hand.length===0;
+        const noOpen = this.player.open.length===0;
+        const revealClosed = noHand && noOpen && this.phase===1 && this.turn==='player';
+        this.renderZone('plClosed', this.player.closed, !revealClosed, revealClosed);
 
-// אם revealClosed === true, hide=false (פון), clickable=true
-this.renderZone(
-  'plClosed',
-  this.player.closed,
-  /* hide */      !revealClosed,
-  /* clickable */  revealClosed
-);
+        // open if hand empty
+        const canPlayOpen = this.player.hand.length===0 && this.phase===1 && this.turn==='player';
+        this.renderZone('plOpen', this.player.open, false, canPlayOpen);
 
-
-        // player open: if no hand
-        const canPlayOpen = this.player.hand.length===0 &&
-                            this.phase===1 && this.turn==='player';
-        this.renderZone('plOpen',this.player.open,false,canPlayOpen);
-
-        // player hand: if your turn
+        // hand if your turn
         const canPlayHand = this.phase===1 && this.turn==='player';
-        this.renderZone('plHand',this.player.hand,false,canPlayHand);
+        this.renderZone('plHand', this.player.hand, false, canPlayHand);
 
-        // opponent: always hide faces
-        this.renderZone('oppClosed',this.opp.closed,true,false);
-        this.renderZone('oppOpen',this.opp.open,true,false);
-        this.renderZone('oppHand',this.opp.hand,true,false);
+        // opponent's cards always hidden
+        this.renderZone('oppClosed', this.opp.closed, true, false);
+        this.renderZone('oppOpen',   this.opp.open,   true, false);
+        this.renderZone('oppHand',   this.opp.hand,   true, false);
 
         // pile
-        this.renderZone('pile',this.pile,false,false);
+        this.renderZone('pile', this.pile, false, false);
 
         document.getElementById('play').disabled = this.selected.length===0;
         document.getElementById('take').disabled = this.selected.length>0;
       }
 
-      selectCard(card,elem){
-        if(this.phase!==1||this.turn!=='player')return;
-        const idx=this.selected.indexOf(card);
-        if(idx>-1){ this.selected.splice(idx,1); elem.classList.remove('selected'); }
-        else{ this.selected.push(card); elem.classList.add('selected'); }
+      selectCard(card, elem) {
+        if (this.phase!==1 || this.turn!=='player') return;
+        const idx = this.selected.indexOf(card);
+        if (idx>-1) { this.selected.splice(idx,1); elem.classList.remove('selected'); }
+        else         { this.selected.push(card); elem.classList.add('selected'); }
         document.getElementById('play').disabled = this.selected.length===0;
         document.getElementById('take').disabled = this.selected.length>0;
       }
 
-      val(c){ return this.values.indexOf(c.v); }
+      val(c) { return this.values.indexOf(c.v); }
 
-      playCards(){
+      _burnSelected() {
+        ['hand','open'].forEach(z=>{
+          this.player[z] = this.player[z].filter(c=>!this.selected.includes(c));
+        });
+        this.selected=[];
+        this.pile=[];
+        while(this.player.hand.length<3 && this.deck.length)
+          this.player.hand.push(this.deck.pop());
+        this.update();
+        this.turn='player';
+      }
+
+      playCards() {
         // burn on 10
-        if(this.selected.some(c=>c.v==='10')){
+        if (this.selected.some(c=>c.v==='10')) { this._burnSelected(); return; }
+        // burn on 4 in pile+selected
+        if (this.pile.length>=3) {
+          const last3 = this.pile.slice(-3).map(c=>c.v);
+          const selV  = this.selected.map(c=>c.v);
+          const combo= last3.concat(selV).slice(-4);
+          if (combo.length===4 && combo.every(v=>v===combo[0])) { this._burnSelected(); return; }
+        }
+        // burn on 4 selected
+        if (this.selected.length>=4 && this.selected.every(c=>c.v===this.selected[0].v)) {
           this._burnSelected(); return;
         }
-        // burn on quad on board: check last 4 of pile
-        if(this.pile.length>=3){
-          const last4 = this.pile.slice(-3).map(c=>c.v)
-                            .concat(this.selected.map(c=>c.v));
-          if(last4.length>=4 && last4.every(v=>v===last4[0])){
-            this._burnSelected(); return;
-          }
-        }
-        // burn on four of selected
-        if(this.selected.length>=4 && this.selected.every(c=>c.v===this.selected[0].v)){
-          this._burnSelected(); return;
-        }
-
         // legality vs top
-        if(this.pile.length){
-          const top=this.pile[this.pile.length-1];
-          if(top.v!=='2'){
-            if(!this.selected.every(c=>{
-              if(c.v==='2'||c.v==='10')return true;
-              if(top.v==='7') return this.val(c)<=this.val(top);
+        if (this.pile.length) {
+          const top = this.pile[this.pile.length-1];
+          if (top.v!=='2') {
+            if (!this.selected.every(c=>{
+              if (c.v==='2'||c.v==='10') return true;
+              if (top.v==='7') return this.val(c)<=this.val(top);
               return this.val(c)>=this.val(top);
-            })){
-              alert('לא ניתן לשחק'); return;
-            }
+            })) { alert('לא ניתן לשחק'); return; }
           }
         }
-
         // place
         this.pile.push(...this.selected);
         ['hand','open'].forEach(z=>{
-          this.player[z]=this.player[z].filter(c=>!this.selected.includes(c));
+          this.player[z] = this.player[z].filter(c=>!this.selected.includes(c));
         });
-
         // refill
-        while(this.player.hand.length<3&&this.deck.length){
+        while(this.player.hand.length<3 && this.deck.length)
           this.player.hand.push(this.deck.pop());
-        }
-
         this.update();
-
         // skip on 8
-        const played8=this.selected.some(c=>c.v==='8');
+        const played8 = this.selected.some(c=>c.v==='8');
         this.selected=[];
-        if(played8){
+        if (played8) {
           this.turn='player';
           document.getElementById('status').textContent='התורך – 8 עצר את היריב';
         } else {
@@ -231,46 +227,66 @@ this.renderZone(
         }
       }
 
-      takePile(){
+      takePile() {
         this.player.hand.push(...this.pile);
-        this.pile=[]; this.turn='opp'; this.update();
+        this.pile=[];
+        this.turn='opp';
+        this.update();
         setTimeout(()=>this.oppPlay(),500);
       }
 
-      oppPlay(){
-        let avail=this.opp.hand.length?this.opp.hand:
-                  this.opp.open.length?this.opp.open:
-                  this.opp.closed;
-        let playable=avail.filter(c=>{
-          if(!this.pile.length)return true;
-          const top=this.pile[this.pile.length-1];
-          if(c.v==='2'||c.v==='10')return true;
-          if(top.v==='7')return this.val(c)<=this.val(top);
+      oppPlay() {
+        let avail = this.opp.hand.length?this.opp.hand:
+                    this.opp.open.length?this.opp.open:
+                    this.opp.closed;
+        let playable = avail.filter(c=>{
+          if (!this.pile.length) return true;
+          const top = this.pile[this.pile.length-1];
+          if (c.v==='2'||c.v==='10') return true;
+          if (top.v==='7') return this.val(c)<=this.val(top);
           return this.val(c)>=this.val(top);
         });
-        if(!playable.length){
-          this.opp.hand.push(...this.pile); this.pile=[];
-        } else {
-          const card=playable.reduce((a,b)=>this.val(a)<this.val(b)?a:b);
-          ['hand','open','closed'].forEach(z=>{
-            const i=this.opp[z].indexOf(card);
-            if(i>-1)this.opp[z].splice(i,1);
-          });
-          this.pile.push(card);
-          while(this.opp.hand.length<3&&this.deck.length)
-            this.opp.hand.push(this.deck.pop());
+        if (!playable.length) {
+          this.opp.hand.push(...this.pile);
+          this.pile=[];
+          this.update();
+          this.turn='player';
+          return;
         }
-        this.turn='player'; this.update();
-      }
-
-      _burnSelected(){
-        ['hand','open'].forEach(z=>{
-          this.player[z]=this.player[z].filter(c=>!this.selected.includes(c));
+        const card = playable.reduce((a,b)=>this.val(a)<this.val(b)?a:b);
+        ['hand','open','closed'].forEach(z=>{
+          const i=this.opp[z].indexOf(card);
+          if(i>-1) this.opp[z].splice(i,1);
         });
-        this.selected=[]; this.pile=[];
-        while(this.player.hand.length<3&&this.deck.length)
-          this.player.hand.push(this.deck.pop());
+        this.pile.push(card);
+        // burn on 10
+        if (card.v==='10') {
+          this.pile=[];
+          this.update();
+          this.turn='player';
+          return;
+        }
+        // burn on 4 in pile
+        if (this.pile.length>=4) {
+          const last4 = this.pile.slice(-4).map(c=>c.v);
+          if (last4.every(v=>v===last4[0])) {
+            this.pile=[];
+            this.update();
+            this.turn='player';
+            return;
+          }
+        }
+        // skip on 8
+        if (card.v==='8') {
+          this.update();
+          setTimeout(()=>this.oppPlay(),500);
+          return;
+        }
+        // refill opp hand
+        while(this.opp.hand.length<3 && this.deck.length)
+          this.opp.hand.push(this.deck.pop());
         this.update();
+        this.turn='player';
       }
     }
 
