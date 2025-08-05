@@ -5,24 +5,103 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>🃏 השיטהאד של יצחקי 🃏</title>
   <style>
-    * { margin:0; padding:0; box-sizing:border-box; font-family:Arial,sans-serif; -webkit-tap-highlight-color:transparent; }
-    body { background:linear-gradient(135deg,#2d5a27,#4a7c59); min-height:100vh; color:#fff; padding:10px; }
-    .game-container { max-width:800px; margin:20px auto; }
-    .game-title { text-align:center; font-size:1.8rem; margin-bottom:10px; }
-    .status { text-align:center; background:rgba(0,0,0,0.6); padding:8px; border-radius:5px; margin-bottom:10px; }
-    .areas { display:grid; grid-template-columns:1fr 2fr 1fr; gap:10px; }
-    .opponent-area, .player-area { background:rgba(0,0,0,0.3); padding:10px; border-radius:8px; }
-    .opponent-area h3, .player-area h3 { text-align:center; margin-bottom:8px; }
-    .cards-container { display:flex; flex-wrap:wrap; gap:6px; justify-content:center; }
-    .card { width:50px; height:75px; background:#fff; border:1px solid #ccc; border-radius:4px;
-            display:flex; align-items:center; justify-content:center; font-weight:bold; color:#333;
-            touch-action:manipulation; user-select:none; }
-    .card-back { background:linear-gradient(135deg,#1e3a8a,#3b82f6); color:transparent; }
-    .selected { outline:3px solid #ffc107; }
-    .center-area { background:rgba(0,0,0,0.3); padding:10px; border-radius:8px; text-align:center; }
-    button { margin:4px; padding:8px 12px; border:none; border-radius:5px; font-size:1rem; }
-    .btn-primary { background:#0d6efd; color:#fff; }
-    .btn-secondary { background:#6c757d; color:#fff; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      background: linear-gradient(135deg, #2d5a27, #4a7c59);
+      min-height: 100vh;
+      color: #fff;
+      padding: 10px;
+    }
+    .game-container {
+      max-width: 800px;
+      margin: 20px auto;
+    }
+    .game-title {
+      text-align: center;
+      font-size: 1.8rem;
+      margin-bottom: 10px;
+    }
+    .status {
+      text-align: center;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 8px;
+      border-radius: 5px;
+      margin-bottom: 10px;
+    }
+    .areas {
+      display: grid;
+      grid-template-columns: 1fr 2fr 1fr;
+      gap: 10px;
+    }
+    .opponent-area, .player-area {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 10px;
+      border-radius: 8px;
+    }
+    .opponent-area h3, .player-area h3 {
+      text-align: center;
+      margin-bottom: 8px;
+    }
+    .cards-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: center;
+    }
+    .card {
+      /* גודל יחסי לרוחב המסך, יחס 2:3 */
+      width: 12vw;
+      height: calc(12vw * 1.5);
+      /* גבולות מינימום ומקסימום */
+      min-width: 40px;
+      min-height: 60px;
+      max-width: 60px;
+      max-height: 90px;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: #333;
+      touch-action: manipulation;
+      user-select: none;
+    }
+    .card-back {
+      background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+      color: transparent;
+    }
+    .selected {
+      outline: 3px solid #ffc107;
+    }
+    .center-area {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 10px;
+      border-radius: 8px;
+      text-align: center;
+    }
+    button {
+      margin: 4px;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 5px;
+      font-size: 1rem;
+    }
+    .btn-primary {
+      background: #0d6efd;
+      color: #fff;
+    }
+    .btn-secondary {
+      background: #6c757d;
+      color: #fff;
+    }
   </style>
 </head>
 <body>
@@ -33,128 +112,193 @@
       <div class="opponent-area">
         <h3>🧔 יהודה</h3>
         <div id="oppClosed" class="cards-container"></div>
-        <div id="oppOpen" class="cards-container"></div>
-        <div id="oppHand" class="cards-container"></div>
+        <div id="oppOpen"   class="cards-container"></div>
+        <div id="oppHand"   class="cards-container"></div>
       </div>
       <div class="center-area">
         <div>חפיסה: <span id="deckCount">0</span></div>
         <div id="pile" class="cards-container"></div>
         <button id="start" class="btn-primary">התחל משחק</button>
-        <button id="play" class="btn-primary" disabled>שחק קלפים</button>
-        <button id="take" class="btn-secondary" disabled>קח ערימה</button>
+        <button id="play"  class="btn-primary" disabled>שחק קלפים</button>
+        <button id="take"  class="btn-secondary" disabled>קח ערימה</button>
       </div>
       <div class="player-area">
         <h3>👤 אתה</h3>
         <div id="plClosed" class="cards-container"></div>
-        <div id="plOpen" class="cards-container"></div>
-        <div id="plHand" class="cards-container"></div>
+        <div id="plOpen"   class="cards-container"></div>
+        <div id="plHand"   class="cards-container"></div>
       </div>
     </div>
   </div>
+
   <script>
     class Shithead {
       constructor() {
-        this.suits=['♠','♥','♦','♣']; this.values=['3','4','5','6','7','8','9','10','J','Q','K','A','2'];
-        this.deck=[]; this.pile=[]; this.selected=[];
-        this.player={closed:[],open:[],hand:[]}; this.opp={closed:[],open:[],hand:[]};
-        this.phase=0; this.turn='player';
+        this.suits = ['♠','♥','♦','♣'];
+        this.values = ['3','4','5','6','7','8','9','10','J','Q','K','A','2'];
+        this.deck = [];
+        this.pile = [];
+        this.selected = [];
+        this.player = { closed: [], open: [], hand: [] };
+        this.opp    = { closed: [], open: [], hand: [] };
+        this.phase = 0;
+        this.turn  = 'player';
         this.init();
       }
+
       init() {
-        // Build deck and shuffle
-        for(let s of this.suits) for(let v of this.values) this.deck.push({s,v});
-        for(let i=this.deck.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[this.deck[i],this.deck[j]]=[this.deck[j],this.deck[i]];}
-        // Attach buttons
-        document.getElementById('start').onclick=()=>this.startGame();
-        document.getElementById('play').onclick=()=>this.playCards();
-        document.getElementById('take').onclick=()=>this.takePile();
+        // בניית החבילה וערבול
+        for (let s of this.suits)
+          for (let v of this.values)
+            this.deck.push({ s, v });
+        for (let i = this.deck.length - 1; i > 0; i--) {
+          let j = Math.floor(Math.random() * (i + 1));
+          [this.deck[i], this.deck[j]] = [this.deck[j], this.deck[i]];
+        }
+        // חיבור כפתורים
+        document.getElementById('start').addEventListener('click', () => this.startGame());
+        document.getElementById('play' ).addEventListener('click', () => this.playCards());
+        document.getElementById('take' ).addEventListener('click', () => this.takePile());
         this.update();
       }
+
       startGame() {
-        // Deal 3 closed, 3 open, 3 hand each
-        for(let i=0;i<3;i++){ this.player.closed.push(this.deck.pop()); this.opp.closed.push(this.deck.pop()); }
-        for(let i=0;i<3;i++){ this.player.open.push(this.deck.pop()); this.opp.open.push(this.deck.pop()); }
-        for(let i=0;i<3;i++){ this.player.hand.push(this.deck.pop()); this.opp.hand.push(this.deck.pop()); }
-        this.phase=1; this.update();
+        // חלוקה: 3 סגורים, 3 פתוחים, 3 ביד לכל שחקן
+        for (let i = 0; i < 3; i++) {
+          this.player.closed.push(this.deck.pop());
+          this.opp.closed   .push(this.deck.pop());
+        }
+        for (let i = 0; i < 3; i++) {
+          this.player.open.push(this.deck.pop());
+          this.opp.open   .push(this.deck.pop());
+        }
+        for (let i = 0; i < 3; i++) {
+          this.player.hand.push(this.deck.pop());
+          this.opp.hand   .push(this.deck.pop());
+        }
+        this.phase = 1;
+        this.update();
       }
-      renderZone(id,arr,hide,clickable) {
-        const cont=document.getElementById(id); cont.innerHTML='';
-        arr.forEach(c=>{
-          const d=document.createElement('div');
-          d.className='card'+(hide?' card-back':'');
-          if(!hide) d.textContent=c.v+c.s;
-          if(clickable) d.onclick=()=>this.selectCard(c,d);
+
+      renderZone(id, arr, hide, clickable) {
+        const cont = document.getElementById(id);
+        cont.innerHTML = '';
+        arr.forEach(c => {
+          const d = document.createElement('div');
+          d.className = 'card' + (hide ? ' card-back' : '');
+          if (!hide) d.textContent = c.v + c.s;
+
+          if (clickable) {
+            // העתק-הדבק: מאזיני לחיצה ומגע
+            d.addEventListener('click', () => this.selectCard(c, d));
+            d.addEventListener('pointerdown', e => { e.preventDefault(); this.selectCard(c, d); });
+            d.addEventListener('touchstart',   e => { e.preventDefault(); this.selectCard(c, d); }, { passive: false });
+          }
+
           cont.appendChild(d);
         });
       }
+
       update() {
-        document.getElementById('status').textContent=this.phase===0?'לחץ להתח משחק':'התורך';
-        document.getElementById('deckCount').textContent=this.deck.length;
-        this.renderZone('plClosed',this.player.closed,true,false);
-        this.renderZone('plOpen',this.player.open,false,false);
-        this.renderZone('plHand',this.player.hand,false,true);
-        this.renderZone('oppClosed',this.opp.closed,true,false);
-        this.renderZone('oppOpen',this.opp.open,false,false);
-        this.renderZone('oppHand',this.opp.hand,false,false);
-        this.renderZone('pile',this.pile,false,false);
-        document.getElementById('play').disabled=!this.selected.length;
-        document.getElementById('take').disabled=false;
+        document.getElementById('status').textContent = this.phase === 0 ? 'לחץ להתחלת משחק' : 'תורך';
+        document.getElementById('deckCount').textContent = this.deck.length;
+        this.renderZone('plClosed', this.player.closed, true,  false);
+        this.renderZone('plOpen',   this.player.open,   false, false);
+        this.renderZone('plHand',   this.player.hand,   false, true);
+        this.renderZone('oppClosed', this.opp.closed,   true,  false);
+        this.renderZone('oppOpen',   this.opp.open,     false, false);
+        this.renderZone('oppHand',   this.opp.hand,     false, false);
+        this.renderZone('pile',      this.pile,         false, false);
+
+        document.getElementById('play').disabled = !this.selected.length;
+        document.getElementById('take').disabled = false;
       }
-      selectCard(card,elem) {
-        if(this.phase!==1||this.turn!=='player')return;
-        const idx=this.selected.indexOf(card);
-        if(idx>-1){ this.selected.splice(idx,1); elem.classList.remove('selected'); }
-        else{
-          if(this.selected.length&&this.selected[0].v!==card.v){ alert('בחר קלפים מאותו ערך'); return; }
-          this.selected.push(card); elem.classList.add('selected');
+
+      selectCard(card, elem) {
+        if (this.phase !== 1 || this.turn !== 'player') return;
+        const idx = this.selected.indexOf(card);
+        if (idx > -1) {
+          this.selected.splice(idx, 1);
+          elem.classList.remove('selected');
+        } else {
+          if (this.selected.length && this.selected[0].v !== card.v) {
+            alert('בחר קלפים מאותו ערך');
+            return;
+          }
+          this.selected.push(card);
+          elem.classList.add('selected');
         }
       }
-      val(c){return this.values.indexOf(c.v);}
+
+      val(c) {
+        return this.values.indexOf(c.v);
+      }
+
       playCards() {
-        // Validate
-        if(this.pile.length){
-          const top=this.pile[this.pile.length-1];
-          if(!this.selected.every(c=>{
-            if(c.v==='2'||c.v==='10')return true;
-            if(top.v==='7')return this.val(c)<=this.val(top);
-            return this.val(c)>=this.val(top);
-          })){ alert('לא ניתן לשחק'); return; }
+        // לוגיקת משחק בסיסית
+        if (this.pile.length) {
+          const top = this.pile[this.pile.length - 1];
+          if (!this.selected.every(c => {
+            if (c.v === '2' || c.v === '10') return true;
+            if (top.v === '7') return this.val(c) <= this.val(top);
+            return this.val(c) >= this.val(top);
+          })) {
+            alert('לא ניתן לשחק');
+            return;
+          }
         }
-        // Play
         this.pile.push(...this.selected);
-        ['hand','open'].forEach(z=>{
-          this.player[z]=this.player[z].filter(c=>!this.selected.includes(c));
+        ['hand','open'].forEach(z => {
+          this.player[z] = this.player[z].filter(c => !this.selected.includes(c));
         });
-        this.selected=[];
-        while(this.player.hand.length<3&&this.deck.length) this.player.hand.push(this.deck.pop());
-        this.turn='opp'; this.selected=[]; this.update(); setTimeout(()=>this.oppPlay(),500);
+        this.selected = [];
+        while (this.player.hand.length < 3 && this.deck.length) {
+          this.player.hand.push(this.deck.pop());
+        }
+        this.turn = 'opp';
+        this.update();
+        setTimeout(() => this.oppPlay(), 500);
       }
+
       takePile() {
-        this.player.hand.push(...this.pile); this.pile=[];
-        this.turn='opp'; this.update(); setTimeout(()=>this.oppPlay(),500);
+        this.player.hand.push(...this.pile);
+        this.pile = [];
+        this.turn = 'opp';
+        this.update();
+        setTimeout(() => this.oppPlay(), 500);
       }
+
       oppPlay() {
-        let avail=this.opp.hand.length?this.opp.hand:(this.opp.open.length?this.opp.open:this.opp.closed);
-        let playable=avail.filter(c=>{
-          if(!this.pile.length)return true;
-          const top=this.pile[this.pile.length-1];
-          if(c.v==='2'||c.v==='10')return true;
-          if(top.v==='7')return this.val(c)<=this.val(top);
-          return this.val(c)>=this.val(top);
+        let avail = this.opp.hand.length ? this.opp.hand :
+                    this.opp.open.length ? this.opp.open :
+                    this.opp.closed;
+        let playable = avail.filter(c => {
+          if (!this.pile.length) return true;
+          const top = this.pile[this.pile.length - 1];
+          if (c.v === '2' || c.v === '10') return true;
+          if (top.v === '7') return this.val(c) <= this.val(top);
+          return this.val(c) >= this.val(top);
         });
-        if(!playable.length){ this.opp.hand.push(...this.pile); this.pile=[]; }
-        else{
-          const card=playable.reduce((a,b)=>this.val(a)<this.val(b)?a:b);
-          ['hand','open','closed'].forEach(z=>{
-            const i=this.opp[z].indexOf(card); if(i>-1) this.opp[z].splice(i,1);
+        if (!playable.length) {
+          this.opp.hand.push(...this.pile);
+          this.pile = [];
+        } else {
+          const card = playable.reduce((a,b) => this.val(a) < this.val(b) ? a : b);
+          ['hand','open','closed'].forEach(z => {
+            const i = this.opp[z].indexOf(card);
+            if (i > -1) this.opp[z].splice(i, 1);
           });
           this.pile.push(card);
-          while(this.opp.hand.length<3&&this.deck.length) this.opp.hand.push(this.deck.pop());
+          while (this.opp.hand.length < 3 && this.deck.length) {
+            this.opp.hand.push(this.deck.pop());
+          }
         }
-        this.turn='player'; this.update();
+        this.turn = 'player';
+        this.update();
       }
     }
-    window.onload=()=>new Shithead();
+
+    window.onload = () => new Shithead();
   </script>
 </body>
 </html>
