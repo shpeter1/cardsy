@@ -55,6 +55,7 @@
       justify-content: center;
     }
     .card {
+       pointer-events: auto;
       /* גודל יחסי לרוחב המסך, יחס 2:3 */
       width: 12vw;
       height: calc(12vw * 1.5);
@@ -102,6 +103,20 @@
       background: #6c757d;
       color: #fff;
     }
+    /* כשהרוחב עד 600px – נטבח טור אחד */
+@media (max-width: 600px) {
+  .areas {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* במצב אופק על מסכים עד 900px – שתי עמודות */
+@media (orientation: landscape) and (max-width: 900px) {
+  .areas {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
+
   </style>
 </head>
 <body>
@@ -189,11 +204,27 @@
           if (!hide) d.textContent = c.v + c.s;
 
           if (clickable) {
-            // העתק-הדבק: מאזיני לחיצה ומגע
-            d.addEventListener('click', () => this.selectCard(c, d));
-            d.addEventListener('pointerdown', e => { e.preventDefault(); this.selectCard(c, d); });
-            d.addEventListener('touchstart',   e => { e.preventDefault(); this.selectCard(c, d); }, { passive: false });
-          }
+  // לחיצה בעכבר
+  d.addEventListener('click', () => this.selectCard(c, d));
+
+  // Pointer Events (כל הדפדפנים המודרניים)
+  d.addEventListener('pointerdown', e => {
+    e.preventDefault();
+    this.selectCard(c, d);
+  });
+
+  // touchstart עם fallback לגרסאות ישנות
+  function onTouchStart(e) {
+    e.preventDefault();
+    this.selectCard(c, d);
+  }
+  try {
+    d.addEventListener('touchstart', onTouchStart.bind(this), { passive: false });
+  } catch {
+    d.addEventListener('touchstart', onTouchStart.bind(this), false);
+  }
+}
+
 
           cont.appendChild(d);
         });
