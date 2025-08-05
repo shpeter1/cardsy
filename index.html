@@ -5,126 +5,38 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>🃏 השיטהאד של יצחקי 🃏</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: Arial, sans-serif;
-      -webkit-tap-highlight-color: transparent;
-    }
-    body {
-      background: linear-gradient(135deg, #2d5a27, #4a7c59);
-      min-height: 100vh;
-      color: #fff;
-      padding: 10px;
-    }
-    .game-container {
-      max-width: 800px;
-      margin: 20px auto;
-    }
-    .game-title {
-      text-align: center;
-      font-size: 1.8rem;
-      margin-bottom: 10px;
-    }
-    .status {
-      text-align: center;
-      background: rgba(0, 0, 0, 0.6);
-      padding: 8px;
-      border-radius: 5px;
-      margin-bottom: 10px;
-    }
-    .areas {
-      display: grid;
-      grid-template-columns: 1fr 2fr 1fr;
-      gap: 10px;
-    }
-    .opponent-area, .player-area {
-      background: rgba(0, 0, 0, 0.3);
-      padding: 10px;
-      border-radius: 8px;
-    }
-    .opponent-area h3, .player-area h3 {
-      text-align: center;
-      margin-bottom: 8px;
-    }
-    .cards-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      justify-content: center;
-    }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:Arial,sans-serif; -webkit-tap-highlight-color:transparent; }
+    body { background:linear-gradient(135deg,#2d5a27,#4a7c59); min-height:100vh; color:#fff; padding:10px; }
+    .game-container { max-width:800px; margin:20px auto; }
+    .game-title { text-align:center; font-size:1.8rem; margin-bottom:10px; }
+    .status { text-align:center; background:rgba(0,0,0,0.6); padding:8px; border-radius:5px; margin-bottom:10px; }
+    .areas { display:grid; grid-template-columns:1fr 2fr 1fr; gap:10px; }
+    .opponent-area, .player-area { background:rgba(0,0,0,0.3); padding:10px; border-radius:8px; }
+    .opponent-area h3, .player-area h3 { text-align:center; margin-bottom:8px; }
+    .cards-container { display:flex; flex-wrap:wrap; gap:6px; justify-content:center; }
     .card {
-      pointer-events: auto;
-      width: 12vw;
-      height: calc(12vw * 1.5);
-      min-width: 40px;
-      min-height: 60px;
-      max-width: 60px;
-      max-height: 90px;
-      background: #fff;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      color: #333;
-      touch-action: manipulation;
-      user-select: none;
+      pointer-events:auto;
+      width:12vw; height:calc(12vw*1.5);
+      min-width:40px; min-height:60px; max-width:60px; max-height:90px;
+      background:#fff; border:1px solid #ccc; border-radius:4px;
+      display:flex; align-items:center; justify-content:center;
+      font-weight:bold; color:#333;
+      touch-action:manipulation; user-select:none;
     }
-    .card-back {
-      background: linear-gradient(135deg, #1e3a8a, #3b82f6);
-      color: transparent;
-    }
-    .selected {
-      outline: 3px solid #ffc107;
-    }
-    .center-area {
-      background: rgba(0, 0, 0, 0.3);
-      padding: 10px;
-      border-radius: 8px;
-      text-align: center;
-    }
-    button {
-      margin: 4px;
-      padding: 8px 12px;
-      border: none;
-      border-radius: 5px;
-      font-size: 1rem;
-    }
-    .btn-primary {
-      background: #0d6efd;
-      color: #fff;
-    }
-    .btn-secondary {
-      background: #6c757d;
-      color: #fff;
-    }
+    .card-back { background:linear-gradient(135deg,#1e3a8a,#3b82f6); color:transparent; }
+    .selected { outline:3px solid #ffc107; }
+    .center-area { background:rgba(0,0,0,0.3); padding:10px; border-radius:8px; text-align:center; }
+    button { margin:4px; padding:8px 12px; border:none; border-radius:5px; font-size:1rem; }
+    .btn-primary { background:#0d6efd; color:#fff; }
+    .btn-secondary { background:#6c757d; color:#fff; }
+
     /* pile stacking */
-    #pile {
-      position: relative;
-      width: 12vw;
-      height: calc(12vw * 1.5);
-      margin: 0 auto;
-    }
-    #pile .card {
-      position: absolute;
-      top: 0;
-      left: 0;
-      margin: 0;
-    }
+    #pile { position:relative; width:12vw; height:calc(12vw*1.5); margin:0 auto; }
+    #pile .card { position:absolute; top:0; left:0; margin:0; }
+
     /* responsive grid */
-    @media (max-width: 600px) {
-      .areas {
-        grid-template-columns: 1fr !important;
-      }
-    }
-    @media (orientation: landscape) and (max-width: 900px) {
-      .areas {
-        grid-template-columns: 1fr 1fr !important;
-      }
-    }
+    @media (max-width:600px) { .areas { grid-template-columns:1fr!important; } }
+    @media (orientation:landscape) and (max-width:900px) { .areas { grid-template-columns:1fr 1fr!important; } }
   </style>
 </head>
 <body>
@@ -134,16 +46,17 @@
     <div class="areas">
       <div class="opponent-area">
         <h3>🧔 יהודה</h3>
+        <!-- לא מגלים ליריב קלפים פתוחים או ביד -->
         <div id="oppClosed" class="cards-container"></div>
         <div id="oppOpen"   class="cards-container"></div>
         <div id="oppHand"   class="cards-container"></div>
       </div>
       <div class="center-area">
         <div>חפיסה: <span id="deckCount">0</span></div>
-        <div id="pile" class="cards-container"></div>
-        <button id="start" class="btn-primary">התחל משחק</button>
-        <button id="play"  class="btn-primary" disabled>שחק קלפים</button>
-        <button id="take"  class="btn-secondary" disabled>קח ערימה</button>
+        <div id="pile"       class="cards-container"></div>
+        <button id="start"   class="btn-primary">התחל משחק</button>
+        <button id="play"    class="btn-primary" disabled>שחק קלפים</button>
+        <button id="take"    class="btn-secondary" disabled>קח ערימה</button>
       </div>
       <div class="player-area">
         <h3>👤 אתה</h3>
@@ -157,220 +70,203 @@
   <script>
     class Shithead {
       constructor() {
-        this.suits = ['♠','♥','♦','♣'];
-        this.values = ['3','4','5','6','7','8','9','10','J','Q','K','A','2'];
-        this.deck = [];
-        this.pile = [];
-        this.selected = [];
-        this.player = { closed: [], open: [], hand: [] };
-        this.opp    = { closed: [], open: [], hand: [] };
-        this.phase = 0;
-        this.turn  = 'player';
+        this.suits=['♠','♥','♦','♣'];
+        this.values=['3','4','5','6','7','8','9','10','J','Q','K','A','2'];
+        this.deck=[]; this.pile=[]; this.selected=[];
+        this.player={closed:[],open:[],hand:[]};
+        this.opp={closed:[],open:[],hand:[]};
+        this.phase=0; this.turn='player';
         this.init();
       }
 
-      init() {
-        // build & shuffle deck
-        for (let s of this.suits)
-          for (let v of this.values)
-            this.deck.push({ s, v });
-        for (let i = this.deck.length - 1; i > 0; i--) {
-          let j = Math.floor(Math.random() * (i + 1));
-          [this.deck[i], this.deck[j]] = [this.deck[j], this.deck[i]];
+      init(){
+        // build & shuffle
+        for(let s of this.suits) for(let v of this.values) this.deck.push({s,v});
+        for(let i=this.deck.length-1;i>0;i--){
+          let j=Math.floor(Math.random()*(i+1));
+          [this.deck[i],this.deck[j]]=[this.deck[j],this.deck[i]];
         }
-        // attach buttons
-        document.getElementById('start').addEventListener('click', () => this.startGame());
-        document.getElementById('play' ).addEventListener('click', () => this.playCards());
-        document.getElementById('take' ).addEventListener('click', () => this.takePile());
+        // attach once
+        const startBtn = document.getElementById('start');
+        startBtn.addEventListener('click',()=>{ this.startGame(); startBtn.disabled=true; });
+        document.getElementById('play').addEventListener('click',()=>this.playCards());
+        document.getElementById('take').addEventListener('click',()=>this.takePile());
         this.update();
       }
 
-      startGame() {
-        // deal 3 closed, 3 open, 3 hand each
-        for (let i = 0; i < 3; i++) {
-          this.player.closed.push(this.deck.pop());
-          this.opp.closed   .push(this.deck.pop());
+      startGame(){
+        for(let i=0;i<3;i++){
+          this.player.closed.push(this.deck.pop()); this.opp.closed.push(this.deck.pop());
         }
-        for (let i = 0; i < 3; i++) {
-          this.player.open.push(this.deck.pop());
-          this.opp.open   .push(this.deck.pop());
+        for(let i=0;i<3;i++){
+          this.player.open.push(this.deck.pop()); this.opp.open.push(this.deck.pop());
         }
-        for (let i = 0; i < 3; i++) {
-          this.player.hand.push(this.deck.pop());
-          this.opp.hand   .push(this.deck.pop());
+        for(let i=0;i<3;i++){
+          this.player.hand.push(this.deck.pop()); this.opp.hand.push(this.deck.pop());
         }
-        this.phase = 1;
-        this.update();
+        this.phase=1; this.update();
       }
 
-      renderZone(id, arr, hide, clickable) {
-        const cont = document.getElementById(id);
-        cont.innerHTML = '';
-        arr.forEach(c => {
-          const d = document.createElement('div');
-          d.className = 'card' + (hide ? ' card-back' : '');
-          if (!hide) d.textContent = c.v + c.s;
-          if (clickable) {
-            d.addEventListener('pointerdown', e => {
-              e.preventDefault();
-              this.selectCard(c, d);
-            }, { passive: false });
+      renderZone(id, arr, hide, clickable){
+        const cont=document.getElementById(id);
+        cont.innerHTML='';
+        arr.forEach(c=>{
+          const d=document.createElement('div');
+          d.className='card'+(hide?' card-back':'');
+          if(!hide) d.textContent=c.v+c.s;
+          if(clickable){
+            d.addEventListener('pointerdown',e=>{
+              e.preventDefault(); this.selectCard(c,d);
+            },{passive:false});
           }
           cont.appendChild(d);
         });
       }
 
-      update() {
-        document.getElementById('status').textContent =
-          this.phase === 0 ? 'לחץ להתחלת משחק' : 'תורך';
-        document.getElementById('deckCount').textContent = this.deck.length;
+      update(){
+        document.getElementById('status').textContent=
+          this.phase===0?'לחץ להתחלת משחק':'תורך';
+        document.getElementById('deckCount').textContent=this.deck.length;
 
-        // can play closed only when no hand and no open
-        const canPlayClosed = this.player.hand.length === 0 &&
-                              this.player.open.length === 0 &&
-                              this.phase === 1 &&
-                              this.turn === 'player';
-        this.renderZone('plClosed', this.player.closed, true, canPlayClosed);
+        // player closed: only if no hand & no open
+        const canPlayClosed = this.player.hand.length===0 &&
+                              this.player.open.length===0 &&
+                              this.phase===1 && this.turn==='player';
+        this.renderZone('plClosed',this.player.closed,true,canPlayClosed);
 
-        // can play open only when no hand
-        const canPlayOpen = this.player.hand.length === 0 &&
-                            this.phase === 1 &&
-                            this.turn === 'player';
-        this.renderZone('plOpen', this.player.open, false, canPlayOpen);
+        // player open: if no hand
+        const canPlayOpen = this.player.hand.length===0 &&
+                            this.phase===1 && this.turn==='player';
+        this.renderZone('plOpen',this.player.open,false,canPlayOpen);
 
-        // can play hand when it's your turn
-        const canPlayHand = this.phase === 1 && this.turn === 'player';
-        this.renderZone('plHand', this.player.hand, false, canPlayHand);
+        // player hand: if your turn
+        const canPlayHand = this.phase===1 && this.turn==='player';
+        this.renderZone('plHand',this.player.hand,false,canPlayHand);
 
-        // opponent and pile
-        this.renderZone('oppClosed', this.opp.closed, true,  false);
-        this.renderZone('oppOpen',   this.opp.open,   false, false);
-        this.renderZone('oppHand',   this.opp.hand,   false, false);
-        this.renderZone('pile',      this.pile,       false, false);
+        // opponent: always hide faces
+        this.renderZone('oppClosed',this.opp.closed,true,false);
+        this.renderZone('oppOpen',this.opp.open,true,false);
+        this.renderZone('oppHand',this.opp.hand,true,false);
 
-        document.getElementById('play').disabled = this.selected.length === 0;
-        document.getElementById('take').disabled = this.selected.length > 0;
+        // pile
+        this.renderZone('pile',this.pile,false,false);
+
+        document.getElementById('play').disabled = this.selected.length===0;
+        document.getElementById('take').disabled = this.selected.length>0;
       }
 
-      selectCard(card, elem) {
-        if (this.phase !== 1 || this.turn !== 'player') return;
-        const idx = this.selected.indexOf(card);
-        if (idx > -1) {
-          this.selected.splice(idx, 1);
-          elem.classList.remove('selected');
-        } else {
-          this.selected.push(card);
-          elem.classList.add('selected');
-        }
-        document.getElementById('play').disabled = this.selected.length === 0;
-        document.getElementById('take').disabled = this.selected.length > 0;
+      selectCard(card,elem){
+        if(this.phase!==1||this.turn!=='player')return;
+        const idx=this.selected.indexOf(card);
+        if(idx>-1){ this.selected.splice(idx,1); elem.classList.remove('selected'); }
+        else{ this.selected.push(card); elem.classList.add('selected'); }
+        document.getElementById('play').disabled = this.selected.length===0;
+        document.getElementById('take').disabled = this.selected.length>0;
       }
 
-      val(c) {
-        return this.values.indexOf(c.v);
-      }
+      val(c){ return this.values.indexOf(c.v); }
 
-      playCards() {
+      playCards(){
         // burn on 10
-        if (this.selected.some(c => c.v === '10')) {
-          this._burnSelected();
-          return;
+        if(this.selected.some(c=>c.v==='10')){
+          this._burnSelected(); return;
         }
-        // burn on four of a kind
-        if (this.selected.length >= 4 &&
-            this.selected.every(c => c.v === this.selected[0].v)) {
-          this._burnSelected();
-          return;
+        // burn on quad on board: check last 4 of pile
+        if(this.pile.length>=3){
+          const last4 = this.pile.slice(-3).map(c=>c.v)
+                            .concat(this.selected.map(c=>c.v));
+          if(last4.length>=4 && last4.every(v=>v===last4[0])){
+            this._burnSelected(); return;
+          }
         }
-        // legality check against top card
-        if (this.pile.length) {
-          const top = this.pile[this.pile.length - 1];
-          // reset: if top is 2, allow any card
-          if (top.v !== '2') {
-            if (!this.selected.every(c => {
-              if (c.v === '2' || c.v === '10') return true;
-              if (top.v === '7') return this.val(c) <= this.val(top);
-              return this.val(c) >= this.val(top);
-            })) {
-              alert('לא ניתן לשחק');
-              return;
+        // burn on four of selected
+        if(this.selected.length>=4 && this.selected.every(c=>c.v===this.selected[0].v)){
+          this._burnSelected(); return;
+        }
+
+        // legality vs top
+        if(this.pile.length){
+          const top=this.pile[this.pile.length-1];
+          if(top.v!=='2'){
+            if(!this.selected.every(c=>{
+              if(c.v==='2'||c.v==='10')return true;
+              if(top.v==='7') return this.val(c)<=this.val(top);
+              return this.val(c)>=this.val(top);
+            })){
+              alert('לא ניתן לשחק'); return;
             }
           }
         }
-        // place cards
+
+        // place
         this.pile.push(...this.selected);
-        ['hand','open'].forEach(z => {
-          this.player[z] = this.player[z].filter(c => !this.selected.includes(c));
+        ['hand','open'].forEach(z=>{
+          this.player[z]=this.player[z].filter(c=>!this.selected.includes(c));
         });
-        // refill hand
-        while (this.player.hand.length < 3 && this.deck.length) {
+
+        // refill
+        while(this.player.hand.length<3&&this.deck.length){
           this.player.hand.push(this.deck.pop());
         }
-        // update UI
+
         this.update();
+
         // skip on 8
-        const played8 = this.selected.some(c => c.v === '8');
-        this.selected = [];
-        if (played8) {
-          this.turn = 'player';
-          document.getElementById('status').textContent = 'התורך – 8 עצר את היריב';
+        const played8=this.selected.some(c=>c.v==='8');
+        this.selected=[];
+        if(played8){
+          this.turn='player';
+          document.getElementById('status').textContent='התורך – 8 עצר את היריב';
         } else {
-          this.turn = 'opp';
-          setTimeout(() => this.oppPlay(), 500);
+          this.turn='opp';
+          setTimeout(()=>this.oppPlay(),500);
         }
       }
 
-      takePile() {
+      takePile(){
         this.player.hand.push(...this.pile);
-        this.pile = [];
-        this.turn = 'opp';
-        this.update();
-        setTimeout(() => this.oppPlay(), 500);
+        this.pile=[]; this.turn='opp'; this.update();
+        setTimeout(()=>this.oppPlay(),500);
       }
 
-      oppPlay() {
-        let avail = this.opp.hand.length ? this.opp.hand
-                 : this.opp.open.length ? this.opp.open
-                 : this.opp.closed;
-        let playable = avail.filter(c => {
-          if (!this.pile.length) return true;
-          const top = this.pile[this.pile.length - 1];
-          if (c.v === '2' || c.v === '10') return true;
-          if (top.v === '7') return this.val(c) <= this.val(top);
-          return this.val(c) >= this.val(top);
+      oppPlay(){
+        let avail=this.opp.hand.length?this.opp.hand:
+                  this.opp.open.length?this.opp.open:
+                  this.opp.closed;
+        let playable=avail.filter(c=>{
+          if(!this.pile.length)return true;
+          const top=this.pile[this.pile.length-1];
+          if(c.v==='2'||c.v==='10')return true;
+          if(top.v==='7')return this.val(c)<=this.val(top);
+          return this.val(c)>=this.val(top);
         });
-        if (!playable.length) {
-          this.opp.hand.push(...this.pile);
-          this.pile = [];
+        if(!playable.length){
+          this.opp.hand.push(...this.pile); this.pile=[];
         } else {
-          const card = playable.reduce((a,b) => this.val(a) < this.val(b) ? a : b);
-          ['hand','open','closed'].forEach(z => {
-            const i = this.opp[z].indexOf(card);
-            if (i > -1) this.opp[z].splice(i, 1);
+          const card=playable.reduce((a,b)=>this.val(a)<this.val(b)?a:b);
+          ['hand','open','closed'].forEach(z=>{
+            const i=this.opp[z].indexOf(card);
+            if(i>-1)this.opp[z].splice(i,1);
           });
           this.pile.push(card);
-          while (this.opp.hand.length < 3 && this.deck.length) {
+          while(this.opp.hand.length<3&&this.deck.length)
             this.opp.hand.push(this.deck.pop());
-          }
         }
-        this.turn = 'player';
-        this.update();
+        this.turn='player'; this.update();
       }
 
-      _burnSelected() {
-        ['hand','open'].forEach(zone => {
-          this.player[zone] = this.player[zone].filter(c => !this.selected.includes(c));
+      _burnSelected(){
+        ['hand','open'].forEach(z=>{
+          this.player[z]=this.player[z].filter(c=>!this.selected.includes(c));
         });
-        this.selected = [];
-        this.pile = [];
-        while (this.player.hand.length < 3 && this.deck.length) {
+        this.selected=[]; this.pile=[];
+        while(this.player.hand.length<3&&this.deck.length)
           this.player.hand.push(this.deck.pop());
-        }
         this.update();
       }
     }
 
-    window.onload = () => new Shithead();
+    window.onload = ()=>new Shithead();
   </script>
 </body>
 </html>
