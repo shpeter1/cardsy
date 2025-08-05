@@ -241,25 +241,29 @@
         this.renderZone('oppHand',   this.opp.hand,     false, false);
         this.renderZone('pile',      this.pile,         false, false);
 
-        document.getElementById('play').disabled = !this.selected.length;
-        document.getElementById('take').disabled = false;
+// כפתור ״לקח ערימה״ מושבת רק כשיש בחירה (שבמקרה כזה משתמש ישחק ולא ייקח)
+document.getElementById('take').disabled = this.selected.length > 0;
       }
 
-      selectCard(card, elem) {
-        if (this.phase !== 1 || this.turn !== 'player') return;
-        const idx = this.selected.indexOf(card);
-        if (idx > -1) {
-          this.selected.splice(idx, 1);
-          elem.classList.remove('selected');
-        } else {
-          if (this.selected.length && this.selected[0].v !== card.v) {
-            alert('בחר קלפים מאותו ערך');
-            return;
-          }
-          this.selected.push(card);
-          elem.classList.add('selected');
-        }
-      }
+    selectCard(card, elem) {
+  if (this.phase !== 1 || this.turn !== 'player') return;
+  const idx = this.selected.indexOf(card);
+  if (idx > -1) {
+    // ביטול בחירה
+    this.selected.splice(idx, 1);
+    elem.classList.remove('selected');
+  } else {
+    // הוספה לכל קלף, בלי בדיקת ערך
+    this.selected.push(card);
+    elem.classList.add('selected');
+  }
+
+  // עדכון כפתורים מיידי
+  document.getElementById('play').disabled = this.selected.length === 0;
+  // רק אם אין בחירה, מאפשרים “לקחת ערימה”
+  document.getElementById('take').disabled = this.selected.length > 0;
+}
+
 
       val(c) {
         return this.values.indexOf(c.v);
