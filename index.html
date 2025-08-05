@@ -128,11 +128,19 @@
           this.phase===0?'לחץ להתחלת משחק':'תורך';
         document.getElementById('deckCount').textContent=this.deck.length;
 
-        // player closed: only if no hand & no open
-        const canPlayClosed = this.player.hand.length===0 &&
-                              this.player.open.length===0 &&
-                              this.phase===1 && this.turn==='player';
-        this.renderZone('plClosed',this.player.closed,true,canPlayClosed);
+        // חשב האם בכלל הגענו ל־stage של השלושה הסגורים
+const noHand = this.player.hand.length === 0;
+const noOpen = this.player.open.length === 0;
+const revealClosed = noHand && noOpen && this.phase === 1 && this.turn === 'player';
+
+// אם revealClosed === true, hide=false (פון), clickable=true
+this.renderZone(
+  'plClosed',
+  this.player.closed,
+  /* hide */      !revealClosed,
+  /* clickable */  revealClosed
+);
+
 
         // player open: if no hand
         const canPlayOpen = this.player.hand.length===0 &&
