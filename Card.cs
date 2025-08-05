@@ -1,12 +1,30 @@
-public class Card {
-    public enum Suit { Hearts, Diamonds, Clubs, Spades }
-    public int Value;
-    public Suit CardSuit;
-    public bool IsSpecial;
+using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
-    public Card(int value, Suit suit) {
-        Value = value;
-        CardSuit = suit;
-        IsSpecial = (value == 2 || value == 4 || value == 7 || value == 10);
+public class CardUI : MonoBehaviour, IPointerClickHandler {
+    public Image frontImage;     // יש לגרור פה את התמונה של צד הקלף
+    public Image backImage;      // ויש את התמונה של הגב
+    [HideInInspector] public Card data;
+    [HideInInspector] public GameManager manager;
+    public bool isFaceUp;
+
+    public void Initialize(Card cardData, GameManager mgr, bool startFaceUp) {
+        data = cardData;
+        manager = mgr;
+        isFaceUp = startFaceUp;
+        Refresh();
+    }
+
+    public void Refresh() {
+        frontImage.sprite = manager.GetCardSprite(data.Value, data.CardSuit);
+        frontImage.gameObject.SetActive(isFaceUp);
+        backImage.gameObject.SetActive(!isFaceUp);
+    }
+
+    public void OnPointerClick(PointerEventData eventData) {
+        if (manager.CanSelect(this)) {
+            manager.ToggleSelect(this);
+        }
     }
 }
