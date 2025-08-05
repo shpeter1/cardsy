@@ -137,14 +137,23 @@
           this.update(); return;
         }
         // normal play
-        if(this.pile.length){
-          const top = this.pile[this.pile.length-1];
-          if(!this.selected.every(c=>{
-            if(c.v==='2'||c.v==='10') return true;
-            if(top.v==='7') return this.val(c)<=this.val(top);
-            return this.val(c)>=this.val(top);
-          })){ alert('לא ניתן לשחק'); return; }
-        }
+        if (this.pile.length) {
+  const top = this.pile[this.pile.length - 1];
+
+  // אם העליון הוא '2' – RESET: מרשים כל קלף
+  if (top.v !== '2') {
+    // אחרת מבצעים את שאר הבדיקות הרגילות
+    if (!this.selected.every(c => {
+      if (c.v === '2' || c.v === '10') return true;      // 2 ו-10 תמיד חוקיים
+      if (top.v === '7')   return this.val(c) <= this.val(top);  // אחרי 7: סדר יורד
+      return this.val(c) >= this.val(top);                // בשאר המקרים: סדר עולה
+    })) {
+      alert('לא ניתן לשחק');
+      return;
+    }
+  }
+}
+
         this.pile.push(...this.selected);
         ['hand','open'].forEach(z=>{this.player[z]=this.player[z].filter(c=>!this.selected.includes(c));});
         this.selected=[]; while(this.player.hand.length<3 && this.deck.length) this.player.hand.push(this.deck.pop());
