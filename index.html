@@ -32,7 +32,8 @@
       display:flex; align-items:center; justify-content:center;
       font-weight:bold; color:#333; user-select:none;
       touch-action:none; /* disable browser gestures */
-      z-index:10; position:relative;
+      z-index:1; /* below controls */
+      position:relative;
     }
     .card-back { background:linear-gradient(135deg,#1e3a8a,#3b82f6); color:transparent; }
     .selected { outline:3px solid #ffc107; }
@@ -42,7 +43,11 @@
     }
     #pile { position:relative; width:12vw; height:calc(12vw*1.5); margin:0 auto 10px; }
     #pile .card { position:absolute; top:0; left:0; }
-    .controls { display:flex; justify-content:space-between; align-items:flex-start; }
+    .controls {
+      position:relative; /* new */
+      z-index:20;       /* above cards */
+      display:flex; justify-content:space-between; align-items:flex-start;
+    }
     .controls-center {
       display:flex; flex-direction:column; gap:4px; align-items:center;
     }
@@ -149,9 +154,9 @@
           d.className='card'+(hide?' card-back':'');
           if(!hide) d.textContent=c.v+c.s;
           if(clickable){
-            d.addEventListener('click',      ()=>this.selectCard(c,d));
-            d.addEventListener('pointerup',  ()=>this.selectCard(c,d));
-            d.addEventListener('touchend',   ()=>this.selectCard(c,d), {passive:false});
+            d.addEventListener('click',     ()=>this.selectCard(c,d));
+            d.addEventListener('pointerup', ()=>this.selectCard(c,d));
+            d.addEventListener('touchend',  e=>{ e.preventDefault(); this.selectCard(c,d); },{passive:false});
           }
           cont.appendChild(d);
         });
@@ -239,9 +244,9 @@
         setTimeout(()=>this.oppPlay(),500);
       }
       oppPlay(){
-        let avail = this.opp.hand.length?this.opp.hand:
-                    this.opp.open.length?this.opp.open:
-                                        this.opp.closed;
+        let avail=this.opp.hand.length?this.opp.hand:
+                  this.opp.open.length?this.opp.open:
+                                      this.opp.closed;
         let playable=avail.filter(c=>{
           if(!this.pile.length)return true;
           const top=this.pile[this.pile.length-1];
