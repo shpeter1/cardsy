@@ -28,7 +28,8 @@
     .opponent-area, .player-area { background:rgba(0,0,0,0.3); padding:10px; border-radius:8px; }
     .opponent-area h3, .player-area h3 { text-align:center; margin-bottom:8px; }
     .cards-container { display:flex; flex-wrap:wrap; gap:6px; justify-content:center; }
-    .player-area .cards-container { max-height:30vh; overflow-y:auto; }
+    /* only hand scrollable */
+    #plHand { max-height:30vh; overflow-y:auto; }
     .card {
       pointer-events:auto;
       width:12vw; height:calc(12vw*1.5);
@@ -64,10 +65,10 @@
       <div class="center-area">
         <div>חפיסה: <span id="deckCount">0</span></div>
         <div id="pile" class="cards-container"></div>
-        <button id="start" class="btn-primary">התחל משחק</button>
+        <button id="start"   class="btn-primary">התחל משחק</button>
         <button id="restart" class="btn-primary" style="display:none">שחק מחדש</button>
-        <button id="play"  class="btn-primary" disabled>שחק קלפים</button>
-        <button id="take"  class="btn-secondary" disabled>קח ערימה</button>
+        <button id="play"    class="btn-primary" disabled>שחק קלפים</button>
+        <button id="take"    class="btn-secondary" disabled>קח ערימה</button>
       </div>
       <div class="player-area">
         <h3>👤 אתה</h3>
@@ -85,34 +86,34 @@
       constructor() {
         this.suits=['♠','♥','♦','♣'];
         this.values=['3','4','5','6','7','8','9','10','J','Q','K','A','2'];
-        this.deck=[]; this.pile=[]; this.selected=[];
-        this.player={closed:[],open:[],hand:[]};
-        this.opp={closed:[],open:[],hand:[]};
-        this.phase=0; this.turn='player';
         this.init();
       }
 
       init() {
-        this.resetDeck();
-        const startBtn=document.getElementById('start');
-        const restartBtn=document.getElementById('restart');
+        this.resetGameState();
+        const startBtn   = document.getElementById('start');
+        const restartBtn = document.getElementById('restart');
         startBtn.onclick   = ()=>{ this.startGame(); startBtn.disabled=true; };
-        restartBtn.onclick = ()=>{ window.location.reload(); };
-        document.getElementById('play').onclick = ()=>this.playCards();
-        document.getElementById('take').onclick = ()=>this.takePile();
+        restartBtn.onclick = ()=>{ this.resetGame(); };
+        document.getElementById('play' ).onclick = ()=>this.playCards();
+        document.getElementById('take' ).onclick = ()=>this.takePile();
         this.update();
       }
 
-      resetDeck() {
+      resetGameState() {
         this.deck=[]; this.pile=[]; this.selected=[];
         this.player={closed:[],open:[],hand:[]};
-        this.opp={closed:[],open:[],hand:[]};
+        this.opp   ={closed:[],open:[],hand:[]};
         for(let s of this.suits) for(let v of this.values) this.deck.push({s,v});
         for(let i=this.deck.length-1;i>0;i--){
           const j=Math.floor(Math.random()*(i+1));
           [this.deck[i],this.deck[j]]=[this.deck[j],this.deck[i]];
         }
         this.phase=0; this.turn='player';
+        const status=document.getElementById('status');
+        status.classList.remove('game-over');
+        document.getElementById('restart').style.display='none';
+        document.getElementById('start').disabled=false;
       }
 
       startGame() {
@@ -139,53 +140,51 @@
           d.className='card'+(hide?' card-back':'');
           if(!hide) d.textContent=c.v+c.s;
           if(clickable){
-            // pointerdown for modern browsers
-            d.addEventListener('pointerdown', e => {
-              e.preventDefault();
-              this.selectCard(c,d);
-            }, {passive:false});
-            // touchstart fallback for older mobiles
-            d.addEventListener('touchstart', e => {
-              e.preventDefault();
-              this.selectCard(c,d);
-            }, {passive:false});
+            d.addEventListener('pointerdown', e=>{
+              e.preventDefault(); this.selectCard(c,d);
+            },{passive:false});
+            d.addEventListener('click', e=>{
+              e.preventDefault(); this.selectCard(c,d);
+            });
+            d.addEventListener('touchstart', e=>{
+              e.preventDefault(); this.selectCard(c,d);
+            },{passive:false});
           }
           cont.appendChild(d);
         });
       }
 
       update() {
-        // end-game?
+        const status=document.getElementById('status');
         const pCount=this.player.hand.length+this.player.open.length+this.player.closed.length;
-        const oCount=this.opp.hand.length  +this.opp.open.length  +this.opp.closed.length;
+        const oCount=this.opp.hand.length+this.opp.open.length+this.opp.closed.length;
         if(pCount===0||oCount===0){
-          const status=document.getElementById('status');
           status.textContent = pCount===0?'🎉 ניצחת!':'😢 הפסדת';
           status.classList.add('game-over');
-          document.getElementById('winSound').play();
+          document.getElementById('winSound').play().catch(()=>{});
           document.getElementById('play').disabled=true;
           document.getElementById('take').disabled=true;
           document.getElementById('restart').style.display='inline-block';
           return;
         }
 
-        document.getElementById('status').textContent = this.phase===0?'לחץ להתחלת משחק':'תורך';
-        document.getElementById('deckCount').textContent = this.deck.length;
+        status.textContent = this.phase===0?'לחץ להתחלת משחק':'תורך';
+        document.getElementById('deckCount').textContent=this.deck.length;
 
         const noHand=this.player.hand.length===0;
         const noOpen=this.player.open.length===0;
         const revealClosed=noHand&&noOpen&&this.phase===1&&this.turn==='player';
         this.renderZone('plClosed',this.player.closed,!revealClosed,revealClosed);
 
-        const canPlayOpen=noHand&&this.phase===1&&this.turn==='player';
+        const canPlayOpen = noHand&&this.phase===1&&this.turn==='player';
         this.renderZone('plOpen',this.player.open,false,canPlayOpen);
 
-        const canPlayHand=this.phase===1&&this.turn==='player';
+        const canPlayHand = this.phase===1&&this.turn==='player';
         this.renderZone('plHand',this.player.hand,false,canPlayHand);
 
         this.renderZone('oppClosed',this.opp.closed,true,false);
-        this.renderZone('oppOpen',this.opp.open,true,false);
-        this.renderZone('oppHand',this.opp.hand,true,false);
+        this.renderZone('oppOpen',  this.opp.open,  true,false);
+        this.renderZone('oppHand',  this.opp.hand,  true,false);
 
         this.renderZone('pile',this.pile,false,false);
 
@@ -193,11 +192,11 @@
         document.getElementById('take').disabled=this.selected.length>0;
       }
 
-      selectCard(card,elem) {
+      selectCard(card,elem){
         if(this.phase!==1||this.turn!=='player')return;
         const idx=this.selected.indexOf(card);
         if(idx>-1){ this.selected.splice(idx,1); elem.classList.remove('selected'); }
-        else       { this.selected.push(card);     elem.classList.add('selected'); }
+        else       { this.selected.push(card);    elem.classList.add('selected'); }
         document.getElementById('play').disabled=this.selected.length===0;
         document.getElementById('take').disabled=this.selected.length>0;
       }
@@ -211,7 +210,7 @@
         this.selected=[]; this.pile=[];
         while(this.player.hand.length<3&&this.deck.length)
           this.player.hand.push(this.deck.pop());
-        this.update(); this.turn='player';
+        this.turn='player'; this.update();
       }
 
       playCards(){
@@ -221,6 +220,7 @@
           if(combo.length===4&&combo.every(v=>v===combo[0])){ this._burnSelected(); return; }
         }
         if(this.selected.length>=4&&this.selected.every(c=>c.v===this.selected[0].v)){ this._burnSelected(); return; }
+
         if(this.pile.length){
           const top=this.pile[this.pile.length-1];
           if(top.v!=='2'){
@@ -263,11 +263,11 @@
                   this.opp.open.length?this.opp.open:
                                       this.opp.closed;
         let playable=avail.filter(c=>{
-          if(!this.pile.length) return true;
+          if(!this.pile.length)return true;
           const top=this.pile[this.pile.length-1];
-          if(top.v==='2') return true;
-          if(c.v==='2'||c.v==='10') return true;
-          if(top.v==='7') return this.val(c)<=this.val(top);
+          if(top.v==='2')return true;
+          if(c.v==='2'||c.v==='10')return true;
+          if(top.v==='7')return this.val(c)<=this.val(top);
           return this.val(c)>=this.val(top);
         });
         if(!playable.length){
