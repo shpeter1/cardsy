@@ -10,81 +10,46 @@
     .game-container { max-width:800px; margin:20px auto; }
     .game-title { text-align:center; font-size:1.8rem; margin-bottom:10px; }
     .status {
-      background:rgba(0,0,0,0.6);
-      padding:8px;
-      border-radius:5px;
-      margin-bottom:10px;
-      text-align:left;       /* תור המופיע משמאל */
-      font-size:1rem;
-      position:static;
+      background:rgba(0,0,0,0.6); padding:8px; border-radius:5px;
+      margin-bottom:10px; text-align:left; font-size:1rem; position:static;
     }
     .status.game-over {
-      position:absolute;
-      top:50%; left:50%;
-      transform:translate(-50%,-50%);
-      font-size:2rem;
-      text-align:center;
-      margin-bottom:0;
-      z-index:10;
+      position:absolute; top:50%; left:50%;
+      transform:translate(-50%,-50%); font-size:2rem;
+      text-align:center; margin-bottom:0; z-index:100;
     }
     .areas { display:grid; grid-template-columns:1fr 2fr 1fr; gap:10px; }
     .opponent-area, .player-area {
-      background:rgba(0,0,0,0.3);
-      padding:10px;
-      border-radius:8px;
+      background:rgba(0,0,0,0.3); padding:10px; border-radius:8px;
     }
     .opponent-area h3, .player-area h3 { text-align:center; margin-bottom:8px; }
-    .cards-container { display:flex; flex-wrap:wrap; gap:6px; justify-content:center; }
-    /* גלילה רק ליד */
+    .cards-container { display:flex; flex-wrap:wrap; gap:6px; justify-content:center; position:relative; }
     #plHand { max-height:30vh; overflow-y:auto; }
     .card {
       width:12vw; height:calc(12vw*1.5);
-      min-width:40px; min-height:60px;
-      max-width:60px; max-height:90px;
+      min-width:40px; min-height:60px; max-width:60px; max-height:90px;
       background:#fff; border:1px solid #ccc; border-radius:4px;
       display:flex; align-items:center; justify-content:center;
       font-weight:bold; color:#333; user-select:none;
-      touch-action:manipulation; pointer-events:auto;
-      position:relative;
+      touch-action:none; /* disable browser gestures */
+      z-index:10; position:relative;
     }
     .card-back { background:linear-gradient(135deg,#1e3a8a,#3b82f6); color:transparent; }
     .selected { outline:3px solid #ffc107; }
     .center-area {
-      background:rgba(0,0,0,0.3);
-      padding:10px;
-      border-radius:8px;
-      position:relative;
+      background:rgba(0,0,0,0.3); padding:10px; border-radius:8px;
+      position:relative; z-index:5;
     }
-    #pile {
-      position:relative;
-      width:12vw;
-      height:calc(12vw*1.5);
-      margin:0 auto 10px;
-    }
+    #pile { position:relative; width:12vw; height:calc(12vw*1.5); margin:0 auto 10px; }
     #pile .card { position:absolute; top:0; left:0; }
-    .controls {
-      display:flex;
-      justify-content:space-between;
-      align-items:flex-start;
-    }
+    .controls { display:flex; justify-content:space-between; align-items:flex-start; }
     .controls-center {
-      display:flex;
-      flex-direction:column;
-      gap:4px;
-      align-items:center;  /* קח ערימה ושחק קלפים במרכז */
+      display:flex; flex-direction:column; gap:4px; align-items:center;
     }
     .controls-right {
-      display:flex;
-      flex-direction:column;
-      gap:4px;
-      align-items:flex-end; /* התחלת משחק ושחק מחדש בצד ימין */
+      display:flex; flex-direction:column; gap:4px; align-items:flex-end;
     }
-    button {
-      padding:8px 12px;
-      border:none;
-      border-radius:5px;
-      font-size:1rem;
-    }
+    button { padding:8px 12px; border:none; border-radius:5px; font-size:1rem; }
     .btn-primary { background:#0d6efd; color:#fff; }
     .btn-secondary { background:#6c757d; color:#fff; }
     @media (max-width:600px) { .areas { grid-template-columns:1fr!important; } }
@@ -152,9 +117,9 @@
           [this.deck[i],this.deck[j]]=[this.deck[j],this.deck[i]];
         }
         this.phase=0; this.turn='player';
-        const status = document.getElementById('status');
-        status.className = 'status';
-        status.textContent = "לחץ 'התחל משחק'";
+        const status=document.getElementById('status');
+        status.className='status';
+        status.textContent="לחץ 'התחל משחק'";
         document.getElementById('restart').style.display='none';
         document.getElementById('play').disabled=true;
         document.getElementById('take').disabled=true;
@@ -186,7 +151,7 @@
           if(clickable){
             d.addEventListener('click',      ()=>this.selectCard(c,d));
             d.addEventListener('pointerup',  ()=>this.selectCard(c,d));
-            d.addEventListener('touchend',   e=>{ e.preventDefault(); this.selectCard(c,d); },{passive:false});
+            d.addEventListener('touchend',   ()=>this.selectCard(c,d), {passive:false});
           }
           cont.appendChild(d);
         });
@@ -287,8 +252,7 @@
         });
         if(!playable.length){
           this.opp.hand.push(...this.pile);
-          this.pile=[]; this.turn='player'; this.update();return;
-        }
+          this.pile=[]; this.turn='player'; this.update();return;}
         const card=playable.reduce((a,b)=>this.val(a)<this.val(b)?a:b);
         ['hand','open','closed'].forEach(z=>{
           const i=this.opp[z].indexOf(card);
