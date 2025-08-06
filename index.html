@@ -10,23 +10,37 @@
     .game-container { max-width:800px; margin:20px auto; }
     .game-title { text-align:center; font-size:1.8rem; margin-bottom:10px; }
     .status {
-      background:rgba(0,0,0,0.6); padding:8px; border-radius:5px;
-      margin-bottom:10px; position:static; text-align:left; font-size:1rem;
+      background:rgba(0,0,0,0.6);
+      padding:8px;
+      border-radius:5px;
+      margin-bottom:10px;
+      text-align:left;       /* תור המופיע משמאל */
+      font-size:1rem;
+      position:static;
     }
     .status.game-over {
-      position:absolute; top:50%; left:50%;
-      transform:translate(-50%,-50%); font-size:2rem;
-      text-align:center; margin-bottom:0; z-index:10;
+      position:absolute;
+      top:50%; left:50%;
+      transform:translate(-50%,-50%);
+      font-size:2rem;
+      text-align:center;
+      margin-bottom:0;
+      z-index:10;
     }
     .areas { display:grid; grid-template-columns:1fr 2fr 1fr; gap:10px; }
-    .opponent-area, .player-area { background:rgba(0,0,0,0.3); padding:10px; border-radius:8px; }
+    .opponent-area, .player-area {
+      background:rgba(0,0,0,0.3);
+      padding:10px;
+      border-radius:8px;
+    }
     .opponent-area h3, .player-area h3 { text-align:center; margin-bottom:8px; }
     .cards-container { display:flex; flex-wrap:wrap; gap:6px; justify-content:center; }
-    /* רק היד תגלול */
+    /* גלילה רק ליד */
     #plHand { max-height:30vh; overflow-y:auto; }
     .card {
       width:12vw; height:calc(12vw*1.5);
-      min-width:40px; min-height:60px; max-width:60px; max-height:90px;
+      min-width:40px; min-height:60px;
+      max-width:60px; max-height:90px;
       background:#fff; border:1px solid #ccc; border-radius:4px;
       display:flex; align-items:center; justify-content:center;
       font-weight:bold; color:#333; user-select:none;
@@ -36,21 +50,41 @@
     .card-back { background:linear-gradient(135deg,#1e3a8a,#3b82f6); color:transparent; }
     .selected { outline:3px solid #ffc107; }
     .center-area {
-      background:rgba(0,0,0,0.3); padding:10px; border-radius:8px;
+      background:rgba(0,0,0,0.3);
+      padding:10px;
+      border-radius:8px;
       position:relative;
     }
-    #pile { position:relative; width:12vw; height:calc(12vw*1.5); margin:0 auto 10px; }
+    #pile {
+      position:relative;
+      width:12vw;
+      height:calc(12vw*1.5);
+      margin:0 auto 10px;
+    }
     #pile .card { position:absolute; top:0; left:0; }
     .controls {
-      display:flex; justify-content:space-between; align-items:flex-start;
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+    }
+    .controls-center {
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      align-items:center;  /* קח ערימה ושחק קלפים במרכז */
     }
     .controls-right {
-      display:flex; flex-direction:column; gap:4px; align-items:flex-end;
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      align-items:flex-end; /* התחלת משחק ושחק מחדש בצד ימין */
     }
-    .controls-left {
-      display:flex; flex-direction:column; gap:4px; align-items:flex-start;
+    button {
+      padding:8px 12px;
+      border:none;
+      border-radius:5px;
+      font-size:1rem;
     }
-    button { padding:8px 12px; border:none; border-radius:5px; font-size:1rem; }
     .btn-primary { background:#0d6efd; color:#fff; }
     .btn-secondary { background:#6c757d; color:#fff; }
     @media (max-width:600px) { .areas { grid-template-columns:1fr!important; } }
@@ -72,13 +106,13 @@
         <div>חפיסה: <span id="deckCount">0</span></div>
         <div id="pile" class="cards-container"></div>
         <div class="controls">
-          <div class="controls-left">
+          <div class="controls-center">
             <button id="play" class="btn-primary" disabled>שחק קלפים</button>
+            <button id="take" class="btn-secondary" disabled>קח ערימה</button>
           </div>
           <div class="controls-right">
             <button id="start"   class="btn-primary">התחל משחק</button>
             <button id="restart" class="btn-primary" style="display:none">שחק מחדש</button>
-            <button id="take"    class="btn-secondary" disabled>קח ערימה</button>
           </div>
         </div>
       </div>
@@ -118,9 +152,9 @@
           [this.deck[i],this.deck[j]]=[this.deck[j],this.deck[i]];
         }
         this.phase=0; this.turn='player';
-        const status=document.getElementById('status');
-        status.className='status';
-        status.textContent="לחץ 'התחל משחק'";
+        const status = document.getElementById('status');
+        status.className = 'status';
+        status.textContent = "לחץ 'התחל משחק'";
         document.getElementById('restart').style.display='none';
         document.getElementById('play').disabled=true;
         document.getElementById('take').disabled=true;
@@ -150,9 +184,9 @@
           d.className='card'+(hide?' card-back':'');
           if(!hide) d.textContent=c.v+c.s;
           if(clickable){
-            d.addEventListener('pointerdown', e=>this.select(c,d));
-            d.addEventListener('click',        e=>this.select(c,d));
-            d.addEventListener('touchstart',   e=>{ e.preventDefault(); this.select(c,d); },{passive:false});
+            d.addEventListener('click',      ()=>this.selectCard(c,d));
+            d.addEventListener('pointerup',  ()=>this.selectCard(c,d));
+            d.addEventListener('touchend',   e=>{ e.preventDefault(); this.selectCard(c,d); },{passive:false});
           }
           cont.appendChild(d);
         });
@@ -170,34 +204,29 @@
           document.getElementById('take').disabled=true;
           return;
         }
-        status.textContent="תורך";
+        status.textContent='תורך';
         document.getElementById('deckCount').textContent=this.deck.length;
         const noHand=this.player.hand.length===0;
         const noOpen=this.player.open.length===0;
         const revealClosed=noHand&&noOpen&&this.phase===1&&this.turn==='player';
-        this.renderZone('plClosed',this.player.closed,!revealClosed,revealClosed);
-        this.renderZone('plOpen',  this.player.open,  false, noHand&&this.phase===1&&this.turn==='player');
-        this.renderZone('plHand',  this.player.hand,  false, this.phase===1&&this.turn==='player');
-        this.renderZone('oppClosed',this.opp.closed,true,false);
-        this.renderZone('oppOpen',  this.opp.open,  true,false);
-        this.renderZone('oppHand',  this.opp.hand,  true,false);
-        this.renderZone('pile',     this.pile,      false,false);
+        this.renderZone('plClosed', this.player.closed, !revealClosed, revealClosed);
+        this.renderZone('plOpen',   this.player.open,   false,   noHand&&this.phase===1&&this.turn==='player');
+        this.renderZone('plHand',   this.player.hand,   false,   this.phase===1&&this.turn==='player');
+        this.renderZone('oppClosed',this.opp.closed, true,false);
+        this.renderZone('oppOpen',  this.opp.open,   true,false);
+        this.renderZone('oppHand',  this.opp.hand,   true,false);
+        this.renderZone('pile',     this.pile,       false,false);
       }
-      select(card,elem) {
+      selectCard(card,elem){
         if(this.phase!==1||this.turn!=='player')return;
         const idx=this.selected.indexOf(card);
-        if(idx>-1){
-          this.selected.splice(idx,1);
-          elem.classList.remove('selected');
-        } else {
-          this.selected.push(card);
-          elem.classList.add('selected');
-        }
+        if(idx>-1){ this.selected.splice(idx,1); elem.classList.remove('selected'); }
+        else      { this.selected.push(card);     elem.classList.add('selected'); }
         document.getElementById('play').disabled=this.selected.length===0;
         document.getElementById('take').disabled=this.selected.length>0;
       }
       val(c){return this.values.indexOf(c.v);}
-      _burn() {
+      _burn(){
         ['hand','open','closed'].forEach(z=>{
           this.player[z]=this.player[z].filter(c=>!this.selected.includes(c));
         });
@@ -215,13 +244,11 @@
         if(this.selected.length>=4&&this.selected.every(c=>c.v===this.selected[0].v)){this._burn();return;}
         if(this.pile.length){
           const top=this.pile[this.pile.length-1];
-          if(top.v!=='2'){
-            if(!this.selected.every(c=>{
+          if(top.v!=='2'&&!this.selected.every(c=>{
               if(c.v==='2'||c.v==='10')return true;
               if(top.v==='7')return this.val(c)<=this.val(top);
               return this.val(c)>=this.val(top);
             })){alert('לא ניתן לשחק');return;}
-          }
         }
         this.pile.push(...this.selected);
         ['hand','open','closed'].forEach(z=>{
@@ -247,9 +274,9 @@
         setTimeout(()=>this.oppPlay(),500);
       }
       oppPlay(){
-        let avail=this.opp.hand.length?this.opp.hand:
-                  this.opp.open.length?this.opp.open:
-                                      this.opp.closed;
+        let avail = this.opp.hand.length?this.opp.hand:
+                    this.opp.open.length?this.opp.open:
+                                        this.opp.closed;
         let playable=avail.filter(c=>{
           if(!this.pile.length)return true;
           const top=this.pile[this.pile.length-1];
