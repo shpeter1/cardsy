@@ -22,17 +22,13 @@
       transform:translate(-50%,-50%);
       font-size:2rem;
       z-index:10;
+      margin-bottom:0;
     }
     .areas { display:grid; grid-template-columns:1fr 2fr 1fr; gap:10px; }
     .opponent-area, .player-area { background:rgba(0,0,0,0.3); padding:10px; border-radius:8px; }
     .opponent-area h3, .player-area h3 { text-align:center; margin-bottom:8px; }
-    .cards-container {
-      display:flex; flex-wrap:wrap; gap:6px; justify-content:center;
-    }
-    /* enable scroll when too many cards */
-    .player-area .cards-container {
-      max-height:30vh; overflow-y:auto;
-    }
+    .cards-container { display:flex; flex-wrap:wrap; gap:6px; justify-content:center; }
+    .player-area .cards-container { max-height:30vh; overflow-y:auto; }
     .card {
       pointer-events:auto;
       width:12vw; height:calc(12vw*1.5);
@@ -48,7 +44,6 @@
     button { margin:4px; padding:8px 12px; border:none; border-radius:5px; font-size:1rem; }
     .btn-primary { background:#0d6efd; color:#fff; }
     .btn-secondary { background:#6c757d; color:#fff; }
-    /* pile stacking */
     #pile { position:relative; width:12vw; height:calc(12vw*1.5); margin:0 auto; }
     #pile .card { position:absolute; top:0; left:0; margin:0; }
     @media (max-width:600px) { .areas { grid-template-columns:1fr!important; } }
@@ -99,8 +94,8 @@
 
       init() {
         this.resetDeck();
-        const startBtn = document.getElementById('start');
-        const restartBtn = document.getElementById('restart');
+        const startBtn=document.getElementById('start');
+        const restartBtn=document.getElementById('restart');
         startBtn.onclick   = ()=>{ this.startGame(); startBtn.disabled=true; };
         restartBtn.onclick = ()=>{ window.location.reload(); };
         document.getElementById('play').onclick = ()=>this.playCards();
@@ -111,7 +106,7 @@
       resetDeck() {
         this.deck=[]; this.pile=[]; this.selected=[];
         this.player={closed:[],open:[],hand:[]};
-        this.opp   ={closed:[],open:[],hand:[]};
+        this.opp={closed:[],open:[],hand:[]};
         for(let s of this.suits) for(let v of this.values) this.deck.push({s,v});
         for(let i=this.deck.length-1;i>0;i--){
           const j=Math.floor(Math.random()*(i+1));
@@ -137,29 +132,35 @@
       }
 
       renderZone(id, arr, hide, clickable) {
-        const cont = document.getElementById(id);
-        cont.innerHTML = '';
+        const cont=document.getElementById(id);
+        cont.innerHTML='';
         arr.forEach(c=>{
-          const d = document.createElement('div');
-          d.className = 'card' + (hide ? ' card-back' : '');
-          if(!hide) d.textContent = c.v+c.s;
+          const d=document.createElement('div');
+          d.className='card'+(hide?' card-back':'');
+          if(!hide) d.textContent=c.v+c.s;
           if(clickable){
-            d.addEventListener('pointerdown', e=>{
+            // pointerdown for modern browsers
+            d.addEventListener('pointerdown', e => {
               e.preventDefault();
               this.selectCard(c,d);
-            },{passive:false});
+            }, {passive:false});
+            // touchstart fallback for older mobiles
+            d.addEventListener('touchstart', e => {
+              e.preventDefault();
+              this.selectCard(c,d);
+            }, {passive:false});
           }
           cont.appendChild(d);
         });
       }
 
       update() {
-        // check end-game
-        const pCount = this.player.hand.length + this.player.open.length + this.player.closed.length;
-        const oCount = this.opp.hand.length   + this.opp.open.length   + this.opp.closed.length;
-        if(pCount===0 || oCount===0) {
-          const status = document.getElementById('status');
-          status.textContent = pCount===0 ? '🎉 ניצחת!' : '😢 הפסדת';
+        // end-game?
+        const pCount=this.player.hand.length+this.player.open.length+this.player.closed.length;
+        const oCount=this.opp.hand.length  +this.opp.open.length  +this.opp.closed.length;
+        if(pCount===0||oCount===0){
+          const status=document.getElementById('status');
+          status.textContent = pCount===0?'🎉 ניצחת!':'😢 הפסדת';
           status.classList.add('game-over');
           document.getElementById('winSound').play();
           document.getElementById('play').disabled=true;
@@ -168,26 +169,130 @@
           return;
         }
 
-        document.getElementById('status').textContent = this.phase===0 ? 'לחץ להתחלת משחק' : 'תורך';
+        document.getElementById('status').textContent = this.phase===0?'לחץ להתחלת משחק':'תורך';
         document.getElementById('deckCount').textContent = this.deck.length;
 
-        const noHand = this.player.hand.length===0;
-        const noOpen = this.player.open.length===0;
-        const revealClosed = noHand && noOpen && this.phase===1 && this.turn==='player';
-        this.renderZone('plClosed', this.player.closed, !revealClosed, revealClosed);
+        const noHand=this.player.hand.length===0;
+        const noOpen=this.player.open.length===0;
+        const revealClosed=noHand&&noOpen&&this.phase===1&&this.turn==='player';
+        this.renderZone('plClosed',this.player.closed,!revealClosed,revealClosed);
 
-        const canPlayOpen = noHand && this.phase===1 && this.turn==='player';
-        this.renderZone('plOpen', this.player.open, false, canPlayOpen);
+        const canPlayOpen=noHand&&this.phase===1&&this.turn==='player';
+        this.renderZone('plOpen',this.player.open,false,canPlayOpen);
 
-        const canPlayHand = this.phase===1 && this.turn==='player';
-        this.renderZone('plHand', this.player.hand, false, canPlayHand);
+        const canPlayHand=this.phase===1&&this.turn==='player';
+        this.renderZone('plHand',this.player.hand,false,canPlayHand);
 
-        this.renderZone('oppClosed', this.opp.closed, true, false);
-        this.renderZone('oppOpen',   this.opp.open,   true, false);
-        this.renderZone('oppHand',   this.opp.hand,   true, false);
+        this.renderZone('oppClosed',this.opp.closed,true,false);
+        this.renderZone('oppOpen',this.opp.open,true,false);
+        this.renderZone('oppHand',this.opp.hand,true,false);
 
-        this.renderZone('pile', this.pile, false, false);
+        this.renderZone('pile',this.pile,false,false);
 
-        document.getElementById('play').disabled = this.selected.length===0;
-        document.getElementById('take').disabled = this.selected.length>0;
+        document.getElementById('play').disabled=this.selected.length===0;
+        document.getElementById('take').disabled=this.selected.length>0;
       }
+
+      selectCard(card,elem) {
+        if(this.phase!==1||this.turn!=='player')return;
+        const idx=this.selected.indexOf(card);
+        if(idx>-1){ this.selected.splice(idx,1); elem.classList.remove('selected'); }
+        else       { this.selected.push(card);     elem.classList.add('selected'); }
+        document.getElementById('play').disabled=this.selected.length===0;
+        document.getElementById('take').disabled=this.selected.length>0;
+      }
+
+      val(c){ return this.values.indexOf(c.v); }
+
+      _burnSelected(){
+        ['hand','open','closed'].forEach(z=>{
+          this.player[z]=this.player[z].filter(c=>!this.selected.includes(c));
+        });
+        this.selected=[]; this.pile=[];
+        while(this.player.hand.length<3&&this.deck.length)
+          this.player.hand.push(this.deck.pop());
+        this.update(); this.turn='player';
+      }
+
+      playCards(){
+        if(this.selected.some(c=>c.v==='10')){ this._burnSelected(); return; }
+        if(this.pile.length>=3){
+          const combo=[...this.pile.slice(-3),...this.selected].slice(-4).map(c=>c.v);
+          if(combo.length===4&&combo.every(v=>v===combo[0])){ this._burnSelected(); return; }
+        }
+        if(this.selected.length>=4&&this.selected.every(c=>c.v===this.selected[0].v)){ this._burnSelected(); return; }
+        if(this.pile.length){
+          const top=this.pile[this.pile.length-1];
+          if(top.v!=='2'){
+            if(!this.selected.every(c=>{
+              if(c.v==='2'||c.v==='10')return true;
+              if(top.v==='7')return this.val(c)<=this.val(top);
+              return this.val(c)>=this.val(top);
+            })){ alert('לא ניתן לשחק'); return; }
+          }
+        }
+
+        this.pile.push(...this.selected);
+        ['hand','open','closed'].forEach(z=>{
+          this.player[z]=this.player[z].filter(c=>!this.selected.includes(c));
+        });
+        while(this.player.hand.length<3&&this.deck.length)
+          this.player.hand.push(this.deck.pop());
+
+        const played8=this.selected.some(c=>c.v==='8');
+        this.selected=[];
+        if(played8){
+          this.turn='player';
+          document.getElementById('status').textContent='התורך – 8 עצר את היריב';
+          this.update();
+        } else {
+          this.turn='opp';
+          this.update();
+          setTimeout(()=>this.oppPlay(),500);
+        }
+      }
+
+      takePile(){
+        this.player.hand.push(...this.pile);
+        this.pile=[]; this.turn='opp'; this.update();
+        setTimeout(()=>this.oppPlay(),500);
+      }
+
+      oppPlay(){
+        let avail=this.opp.hand.length?this.opp.hand:
+                  this.opp.open.length?this.opp.open:
+                                      this.opp.closed;
+        let playable=avail.filter(c=>{
+          if(!this.pile.length) return true;
+          const top=this.pile[this.pile.length-1];
+          if(top.v==='2') return true;
+          if(c.v==='2'||c.v==='10') return true;
+          if(top.v==='7') return this.val(c)<=this.val(top);
+          return this.val(c)>=this.val(top);
+        });
+        if(!playable.length){
+          this.opp.hand.push(...this.pile);
+          this.pile=[]; this.turn='player'; this.update(); return;
+        }
+        const card=playable.reduce((a,b)=>this.val(a)<this.val(b)?a:b);
+        ['hand','open','closed'].forEach(z=>{
+          const i=this.opp[z].indexOf(card);
+          if(i>-1)this.opp[z].splice(i,1);
+        });
+        this.pile.push(card);
+        if(card.v==='10'){ this.pile=[]; this.turn='player'; this.update(); return; }
+        if(this.pile.length>=4){
+          const last4=this.pile.slice(-4).map(c=>c.v);
+          if(last4.every(v=>v===last4[0])){ this.pile=[]; this.turn='player'; this.update(); return; }
+        }
+        if(card.v==='8'){ this.turn='opp'; this.update(); setTimeout(()=>this.oppPlay(),500); return; }
+        while(this.opp.hand.length<3&&this.deck.length)
+          this.opp.hand.push(this.deck.pop());
+        this.turn='player'; this.update();
+      }
+    }
+
+    window.onload = ()=>new Shithead();
+  </script>
+</body>
+</html>
